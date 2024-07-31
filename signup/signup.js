@@ -15,7 +15,6 @@ passwordInput.addEventListener("input", () => {
   var passwordStrengthValue = passwordStrength(passwordValue).value;
   console.log(passwordStrengthValue);
   if (passwordValue.length === 0) {
-    console.log("password is empty ");
     var strength = document.querySelectorAll(".strength");
     for (var i = 0; i < strength.length; i++) {
       strength[i].style.backgroundColor = "transparent";
@@ -23,8 +22,11 @@ passwordInput.addEventListener("input", () => {
   } else {
     if (passwordStrengthValue === "Too weak") {
       weak.style.backgroundColor = "transparent";
+      strong.style.backgroundColor = "transparent";
+      medium.style.backgroundColor = "transparent";
       tooweak.style.backgroundColor = "#FF4136";
     } else if (passwordStrengthValue === "Weak") {
+      strong.style.backgroundColor = "transparent";
       medium.style.backgroundColor = "transparent";
       weak.style.backgroundColor = "#FF851B";
     } else if (passwordStrengthValue === "Medium") {
