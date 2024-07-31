@@ -71,26 +71,27 @@ newQuestionBtn.addEventListener("click", () => {
   newMainBorder.className = "main-border new-question-container";
   newMainBorder.style.marginTop = "20px";
 
-  newMainBorder.innerHTML = ` <div class="question-marks-container">
-          <div class="question-container">
-            <p class="question-number">Q<span class="q-num">${questionNumber}.</span></p>
-            <input
-              type="text"
-              placeholder="State newton third law?"
-              class="question-text"
-            />
-          </div>
-          <div class="marks-container">
-            <p>Marks</p>
-            <input type="text" class="marks" />
-          </div>
-        </div>
-
-        <div class="add-image-container">
-          <button class="add-image-btn">
-            <i class="fa-regular fa-image add-image-logo"></i>Add an Image
-          </button>
-        </div>`;
+  newMainBorder.innerHTML = `
+  <div class="question-marks-container">
+    <div class="question-container">
+      <p class="question-number">Q<span class="q-num">${questionNumber}.</span></p>
+      <input
+        type="text"
+        placeholder="State newton third law?"
+        class="question-text"
+      />
+    </div>
+    <div class="marks-container">
+      <p>Marks</p>
+      <input type="text" class="marks" />
+    </div>
+  </div>
+  <div class="add-image-container">
+    <label for="imageUpload${questionNumber}" class="add-image-btn">
+      <i class="fa-regular fa-image add-image-logo"></i>Add an Image
+    </label>
+    <input type="file" id="imageUpload${questionNumber}" accept="image/*" style="display: none;">
+  </div>`;
 
   var footerContainer = document.querySelector(".footer-container");
   createContent.insertBefore(newMainBorder, footerContainer);
@@ -130,3 +131,36 @@ analyticsBtnSideBar.addEventListener("click", () => {
     analyticsContent.style.display = "block";
   }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  const mainContent = document.querySelector(".main-content");
+
+  mainContent.addEventListener("change", function (event) {
+    if (event.target && event.target.type === "file") {
+      console.log(event);
+      handleFileSelect(event);
+    }
+  });
+});
+
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      img.classList.add("uploaded-image");
+      const container = event.target.closest(".main-border");
+
+      // Remove existing image if any
+      const existingImg = container.querySelector("img");
+      if (existingImg) {
+        existingImg.remove();
+      }
+
+      container.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  }
+}

@@ -1,0 +1,163 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+button {
+  border: none;
+  background: none;
+}
+body {
+  overflow: hidden;
+}
+
+.main-container {
+  display: flex;
+  gap: 50px;
+}
+
+.form-container {
+  width: 30%;
+}
+
+/* Logo Styling */
+
+.form-container .logo {
+  font-size: 48px;
+}
+.form-container .grade-logo {
+  color: #4876ff;
+}
+
+/* Form Elements Styling */
+
+form {
+  margin-top: 30px;
+}
+
+.hello {
+  font-weight: bold;
+  font-size: 32px;
+  margin-top: 15px;
+}
+
+.form-description {
+  margin-top: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+input:not([type="radio"]) {
+  padding: 15px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+input:not([type="radio"]):hover {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(72, 118, 255, 0.1);
+}
+
+input:not([type="radio"]):focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(72, 118, 255, 0.2);
+}
+
+.input-element {
+  margin-top: 15px;
+}
+
+/* Radio Button Styling */
+
+.checkbox-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.checkbox-label {
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 40%;
+  border-radius: 10px;
+  font-size: 18px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.checkbox-label input {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+.btn-container {
+  text-align: center;
+}
+
+.signup-btn {
+  padding: 10px;
+  width: 100%;
+  border-radius: 10px;
+  background-color: #4876ff;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.login-container {
+  text-align: center;
+  margin-top: 10px;
+}
+.login-question span a {
+  color: #ff7648;
+}
+
+/* Eye Icon Styling */
+
+.password {
+  position: relative;
+}
+
+.see-icon {
+  position: absolute;
+  top: 54px;
+  right: 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.unsee-icon {
+  position: absolute;
+  top: 54px;
+  right: 20px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.unshow {
+  display: none !important;
+}
+
+/* Strength Container Styling */
+
+.strength-container {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.strength {
+  height: 3px;
+  width: 100px;
+  border-radius: 10px;
+  background-color: transparent;
+  transition: all 0.3s;
+}
