@@ -48,7 +48,6 @@ window.addEventListener("load", () => {
   addMarkInputListener(initialMarksInput);
   createContent.style.display = "block";
   analyticsContent.style.display = "none";
-  // updateTotalMarks();
 });
 
 cancelBtn.addEventListener("click", () => {
@@ -97,7 +96,6 @@ newQuestionBtn.addEventListener("click", () => {
   createContent.insertBefore(newMainBorder, footerContainer);
   var newMarkInput = newMainBorder.querySelector(".marks");
   addMarkInputListener(newMarkInput);
-  // updateTotalMarks();
 });
 
 createBtnSideBar.addEventListener("click", () => {
