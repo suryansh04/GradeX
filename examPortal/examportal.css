@@ -1,0 +1,147 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+button {
+  border: none;
+  background: none;
+}
+
+body {
+  height: 100vh;
+  padding: 10px 20px;
+}
+
+/*Custom Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+/** Main info container **/
+
+.main-info-container {
+  display: flex;
+}
+
+/**Sidebar info Container **/
+.sidebar-info-container {
+  width: 20%;
+}
+
+/** Info Container **/
+.info-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 75%;
+}
+
+.greeting-name {
+  font-size: 30px;
+  margin-left: 20px;
+}
+
+/**Logo Styling */
+
+.logo {
+  font-size: 48px;
+  margin-right: 20px;
+}
+
+.grade-logo {
+  color: #4876ff;
+}
+
+/** Role styling **/
+.role-title p {
+  color: white;
+  background-color: #4876ff;
+  padding: 10px 20px;
+  border-radius: 100px;
+}
+
+/** Question box container **/
+.question-box-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80%;
+}
+
+/** Question Input-Box Container **/
+.question-input-box-container {
+  width: 70%;
+}
+/** Question Container Styling **/
+.question-container {
+  display: flex;
+  gap: 10px;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+/** Question TextArea  styling **/
+.question-input-container textarea {
+  width: 100%;
+  padding: 10px;
+  height: 300px;
+  font-size: 18px;
+  resize: none;
+  overflow-x: hidden;
+  border-radius: 10px;
+  outline: none;
+  border: 1px solid #4876ff;
+  transition: all 0.3s;
+}
+
+.question-input-container textarea:hover {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(72, 118, 255, 0.1);
+}
+
+.question-input-container textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(72, 118, 255, 0.2);
+}
+
+/*Next Question Button Styling */
+
+.next-btn {
+  display: flex;
+  justify-content: center;
+}
+
+.next-btn button {
+  font-size: 18px;
+  color: white;
+  background-color: #4876ff;
+  padding: 10px 20px;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+/** Responsive Design */
+@media (max-width: 992px) {
+  .logo {
+    font-size: 40px;
+    margin-right: 20px;
+  }
+
+  .greeting-name {
+    font-size: 25px;
+    margin-left: 20px;
+  }
+
+  .next-btn button {
+    font-size: 15px;
+  }
+}
