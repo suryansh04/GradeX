@@ -8,6 +8,7 @@ var resultBtnIcon = document.querySelector(".result i");
 var resultBtnLink = document.querySelector(".result a");
 var examContent = document.querySelector(".exam-content");
 var resultContent = document.getElementById("result-content");
+var mainContent = document.querySelector(".main-content");
 
 // Hamburger Menu
 
@@ -30,6 +31,7 @@ examBtnSideBar.addEventListener("click", () => {
 
     examContent.style.display = "block";
     resultContent.style.display = "none";
+    mainContent.style.paddingRight = "30px";
   }
 });
 
@@ -45,6 +47,10 @@ resultBtnSideBar.addEventListener("click", () => {
     examBtnLink.classList.remove("selected");
 
     examContent.style.display = "none";
-    resultContent.style.display = "block";
+    resultContent.style.display = "flex";
+    resultContent.style.justifyContent = "space-between";
+    mainContent.style.paddingRight = "0px";
   }
 });
+
+/** Text area text */

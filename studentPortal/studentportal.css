@@ -227,5 +227,104 @@ body {
   }
 }
 
-/* @media (max-width: 768px) {
-} */
+/**--------------------------------------------------------------------------------------------------------------**/
+
+/** Result Portal **/
+
+/** Question-Answer Container**/
+
+.question-answer-container {
+  width: 60%;
+}
+
+/** Question Container **/
+.question-container {
+  display: flex;
+  font-size: 18px;
+}
+
+/** Answer Container **/
+
+.answer-container {
+  margin-top: 15px;
+}
+
+.answer {
+  font-size: 18px;
+}
+
+/** Answer Textarea **/
+
+.answer textarea {
+  width: 100%;
+  padding: 10px;
+  height: 350px;
+  font-size: 18px;
+  resize: none;
+  overflow-x: hidden;
+  border-radius: 10px;
+  outline: none;
+  border: 1px solid #4876ff;
+  transition: all 0.3s;
+}
+
+.answer textarea:hover {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(72, 118, 255, 0.1);
+}
+
+.answer textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(72, 118, 255, 0.2);
+}
+
+/** Result Container **/
+
+.result-container {
+  background-color: #4876ff;
+  color: white;
+  height: 100vh;
+  width: 30%;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.result-container-course-code {
+  font-weight: bolder;
+}
+
+.result-container-question-number {
+  width: 50px;
+  height: 50px;
+  background-color: #ff7648;
+  border-radius: 10px;
+  display: grid;
+  place-content: center;
+}
+
+/** Marks Container **/
+.marks {
+  display: flex;
+  gap: 30px;
+  margin-top: 50px;
+}
+
+/** Feed-Back Container **/
+.feedback-container {
+  margin-top: 30px;
+}
+
+.feedback-container p:not(.feedback-text) {
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+/* Correct Answer Container */
+.correct-answer-container {
+  margin-top: 30px;
+}
+
+.correct-answer-container p:not(.correct-answer-text) {
+  font-weight: bold;
+  margin-bottom: 5px;
+}

@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "check-password-strength": "^2.0.10"
+    "check-password-strength": "^2.0.10",
+    "firebase": "^10.13.0"
   }
 }
