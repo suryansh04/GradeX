@@ -17,6 +17,17 @@ body {
   gap: 50px;
 }
 
+/** Video **/
+
+.video-box {
+  width: 50%;
+  height: 100%;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+}
 .form-container {
   width: 30%;
 }

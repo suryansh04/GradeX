@@ -33,6 +33,7 @@ function hideSpinner() {
 //-----------------------------------------------------------------------------
 
 // Firebase
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import {
   getAuth,
@@ -84,16 +85,20 @@ form.addEventListener("submit", async (e) => {
     const user = userCredential.user;
 
     // Get user role from Firestore
+
     const userDoc = await getDoc(doc(db, "users", user.uid));
 
     if (userDoc.exists()) {
       const userData = userDoc.data();
       const role = userData.role;
+      const name = userData.name;
+      const encodedName = encodeURIComponent(name);
+
       hideSpinner();
       if (role === "teacher") {
-        window.location.href = "../TeacherPortal/teacher.html";
+        window.location.href = `../TeacherPortal/teacher.html?name=${encodedName}`;
       } else if (role === "student") {
-        window.location.href = "../studentPortal/studentportal.html";
+        window.location.href = `../studentPortal/studentportal.html?name=${encodedName}`;
       } else {
         console.error("Unknown role:", role);
         alert("Login successful, but role is unknown. Please contact support.");

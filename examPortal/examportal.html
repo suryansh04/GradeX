@@ -26,28 +26,36 @@
         <div class="role-title"><p>Student</p></div>
       </div>
     </div>
-
-    <div class="question-box-container">
-      <div class="question-input-box-container">
-        <div class="question-container">
-          <p class="question-number">Q1.</p>
-          <p class="question">
-            A steel wire of length 5 m and cross-sectional area 3 x 10^-6 m²
+    <div id="questionContent" class="hidden">
+      <div class="question-box-container">
+        <div class="question-input-box-container">
+          <div class="question-container">
+            <p class="question-number">
+              <!--    Q1. -->
+            </p>
+            <p class="question">
+              <!-- A steel wire of length 5 m and cross-sectional area 3 x 10^-6 m²
             stretches by 0.1 cm under a load of 5 kg. Calculate the Young's
-            modulus of steel.
-          </p>
-        </div>
-        <div class="question-input-container">
-          <textarea placeholder="Write your answer here"></textarea>
+            modulus of steel. -->
+            </p>
+          </div>
+          <div id="questionImage" class="question-image-container hidden">
+            <img src="" alt="Question Image" />
+          </div>
+          <div class="question-input-container">
+            <textarea placeholder="Write your answer here"></textarea>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="next-btn"><button>Next question</button></div>
+      <div class="next-btn"><button>Next question</button></div>
+    </div>
+    <div class="overlay"></div>
+    <div class="loader"></div>
     <script
       src="https://kit.fontawesome.com/a4b6467969.js"
       crossorigin="anonymous"
     ></script>
-    <script src="examportal.js"></script>
+    <script type="module" src="examportal.js"></script>
   </body>
 </html>

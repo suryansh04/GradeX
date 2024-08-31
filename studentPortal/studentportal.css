@@ -117,6 +117,7 @@ body {
 
 .logo {
   font-size: 48px;
+  cursor: pointer;
 }
 
 .grade-logo {
@@ -327,4 +328,51 @@ body {
 .correct-answer-container p:not(.correct-answer-text) {
   font-weight: bold;
   margin-bottom: 5px;
+}
+
+/**********************************************************************************************************************************/
+
+/*** New main Exam Container Code  ****/
+
+.main-exam-container {
+  height: calc(100vh - 100px); /* Adjust based on your header height */
+  overflow: hidden;
+}
+
+.exams-container {
+  height: 70%;
+  display: flex;
+  flex-direction: column;
+}
+
+.exams {
+  padding: 10px;
+}
+
+.exam-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Style the scrollbar */
+.exam-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.exam-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.exam-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.exam-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.exam-info-container {
+  margin-bottom: 20px;
 }

@@ -47,7 +47,7 @@
     <div class="main-content">
       <div class="create-content">
         <div class="header">
-          <span class="header-name">Hey Suryansh,</span>
+          <span class="header-name">Hey <span class="username"></span>,</span>
           <div class="header-title-box">
             <span class="header-title">Teacher</span>
           </div>
@@ -181,12 +181,34 @@
     </div>
     <div class="popup" id="popup">
       <div class="popup-content">
-        <h2>Enter Exam Details</h2>
+        <p>Enter Exam Details</p>
         <input type="text" id="courseCode" placeholder="Course Code" />
         <input type="text" id="examName" placeholder="Exam Name" />
         <div class="popup-buttons">
           <button id="cancelBtn">Cancel</button>
-          <button id="okBtn">Ok</button>
+          <button id="submitBtn">Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="success-popup-container" id="success-popup-container">
+      <div class="success-pop-content">
+        <div class="animation-box">
+          <video
+            src="../videos/success.webm"
+            autoplay
+            loop
+            height="70"
+            width="70"
+            muted
+          ></video>
+        </div>
+        <div class="close-btn"><i class="fa-solid fa-xmark"></i></div>
+        <div class="message-container">
+          <div class="message-box"><p>Upload Successful!</p></div>
+          <div class="message-description-box">
+            <p>Your file has been successfully uploaded</p>
+          </div>
         </div>
       </div>
     </div>
@@ -195,6 +217,6 @@
       src="https://kit.fontawesome.com/a4b6467969.js"
       crossorigin="anonymous"
     ></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
   </body>
 </html>
