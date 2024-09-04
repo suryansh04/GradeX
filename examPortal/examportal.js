@@ -6,6 +6,8 @@ import {
   getFirestore,
   doc,
   getDoc,
+  addDoc,
+  collection,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -23,7 +25,13 @@ const db = getFirestore(app);
 
 let currentExam;
 let currentQuestionIndex = 0;
-
+let studentAnswers = []; // Array to store student answers
+let sampleAnswers = []; // Array to store sample answers
+let examQuestions = []; // Array to store exam questions
+let totalMarks = 0; // Variable to store total marks
+let questionMarks = []; // Array to store individual question marks
+let examCode = "";
+let examName = "";
 // Function to get URL parameters
 function getUrlParameter(name) {
   name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -34,7 +42,7 @@ function getUrlParameter(name) {
     : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
-// Function to fetch exam data
+// Updated function to fetch exam data
 async function fetchExamData(examId) {
   showSpinner();
   hideQuestionContent();
@@ -42,6 +50,16 @@ async function fetchExamData(examId) {
     const examDoc = await getDoc(doc(db, "exams", examId));
     if (examDoc.exists()) {
       currentExam = examDoc.data();
+      sampleAnswers = currentExam.answers || [];
+      examQuestions = currentExam.questions.map((q) => q.questionText) || [];
+      totalMarks = currentExam.totalMarks || 0; // Fetch total marks
+      questionMarks = currentExam.questions.map((q) => q.marks) || []; // Fetch individual question marks
+      examCode = currentExam.courseCode;
+      examName = currentExam.examName;
+      console.log("Sample answers:", sampleAnswers);
+      console.log("Exam questions:", examQuestions);
+      console.log("Total marks:", totalMarks);
+      console.log("Question marks:", questionMarks);
       displayQuestion(currentQuestionIndex);
       showQuestionContent();
     } else {
@@ -55,7 +73,6 @@ async function fetchExamData(examId) {
 }
 
 // Function to display a question
-
 function displayQuestion(index) {
   if (index >= currentExam.questions.length) {
     alert("You've reached the end of the exam!");
@@ -65,7 +82,7 @@ function displayQuestion(index) {
   const question = currentExam.questions[index];
   document.querySelector(".question-number").textContent = `Q${index + 1}.`;
   document.querySelector(".question").textContent = question.questionText;
-  document.querySelector("textarea").value = "";
+  document.querySelector("textarea").value = studentAnswers[index] || "";
 
   // Handle image display
   const imageContainer = document.getElementById("questionImage");
@@ -86,9 +103,62 @@ function displayQuestion(index) {
 
 // Event listener for next button
 document.querySelector(".next-btn button").addEventListener("click", () => {
+  // Save the current answer
+  const currentAnswer = document.querySelector("textarea").value;
+  studentAnswers[currentQuestionIndex] = currentAnswer;
+
   currentQuestionIndex++;
-  displayQuestion(currentQuestionIndex);
+  if (currentQuestionIndex < currentExam.questions.length) {
+    displayQuestion(currentQuestionIndex);
+  } else {
+    // Exam finished, save answers to Firebase
+    saveStudentAnswers();
+
+    // startExam(examId);
+  }
 });
+
+// Updated function to save student answers
+async function saveStudentAnswers() {
+  fetch("http://localhost:5000/run-grading", {
+    method: "POST",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  showSpinner();
+  try {
+    const studentName = getUrlParameter("name");
+    const examId = getUrlParameter("examId");
+
+    const docRef = await addDoc(collection(db, "studentanswers"), {
+      studentName: studentName,
+      examId: examId,
+      studentanswer: studentAnswers,
+      questions: examQuestions,
+      sampleAnswers: sampleAnswers,
+      totalMarks: totalMarks, // Add total marks
+      questionMarks: questionMarks, // Add question marks array
+      submittedAt: new Date(),
+      examCode: examCode,
+      examName: examName,
+    });
+
+    console.log("Student answers saved with ID: ", docRef.id);
+    alert("Exam completed and answers submitted successfully!");
+    // Redirect to a thank you page or back to the main menu
+    // window.location.href = "thank-you.html";
+  } catch (error) {
+    console.error("Error saving student answers:", error);
+    alert("There was an error submitting your answers. Please try again.");
+  } finally {
+    hideSpinner();
+  }
+}
 
 // Initialize exam when page loads
 document.addEventListener("DOMContentLoaded", () => {
@@ -106,12 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ).textContent = `Hey ${studentName} ,`;
 });
 
-// ------------------------------------------------------------------------------------------------------------------------------------------
-
-// Loader
-
-/** Spinner Function */
-
+// Spinner functions
 function showSpinner() {
   loader.style.display = "block";
   overlay.style.display = "block";
@@ -122,7 +187,6 @@ function hideSpinner() {
   overlay.style.display = "none";
 }
 
-// -------------------------------------------------------------------
 function showQuestionContent() {
   document.getElementById("questionContent").classList.remove("hidden");
 }

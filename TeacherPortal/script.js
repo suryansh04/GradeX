@@ -19,11 +19,24 @@ var analyticsBtnLink = document.querySelector(".analytics a");
 
 var createContent = document.querySelector(".create-content");
 var analyticsContent = document.getElementById("analytics-content");
+var loader = document.querySelector(".loader");
+var overlay = document.querySelector(".overlay");
+
+const answerSheetContainer = document.querySelector(".answer-sheet-container");
 
 var questionNumber = 1;
 
 // Function to update the total marks
+/** Spinner Function */
+function showSpinner() {
+  loader.style.display = "block";
+  overlay.style.display = "block";
+}
 
+function hideSpinner() {
+  loader.style.display = "none";
+  overlay.style.display = "none";
+}
 function updateTotalMarks() {
   var marksInput = document.querySelectorAll(".marks");
   var total = 0;
@@ -185,8 +198,8 @@ import {
 import {
   doc,
   getDoc,
+  updateDoc,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-//////////////////////////////
 import {
   getFirestore,
   collection,
@@ -256,6 +269,60 @@ onAuthStateChanged(auth, async (user) => {
 
 // Storing of the data in the firebase
 const storage = getStorage(app);
+// ... (previous imports and Firebase configuration remain the same)
+
+// Function to read PDF and extract answers
+function readPDF(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const typedarray = new Uint8Array(event.target.result);
+
+      pdfjsLib
+        .getDocument(typedarray)
+        .promise.then((pdf) => {
+          let answers = [];
+          const numPages = pdf.numPages;
+          const pagePromises = [];
+
+          for (let i = 1; i <= numPages; i++) {
+            pagePromises.push(
+              pdf.getPage(i).then((page) => {
+                return page.getTextContent().then((textContent) => {
+                  const pageText = textContent.items
+                    .map((item) => item.str)
+                    .join(" ");
+                  const answerMatches = pageText.match(
+                    /A(\d+)\s*\)([\s\S]*?)(?=A\d+\s*\)|$)/g
+                  );
+                  if (answerMatches) {
+                    answerMatches.forEach((match) => {
+                      const [, questionNumber, answerText] =
+                        match.match(/A(\d+)\s*\)([\s\S]*)/);
+                      const index = parseInt(questionNumber) - 1;
+                      answers[index] = answerText.trim();
+                    });
+                  }
+                });
+              })
+            );
+          }
+
+          Promise.all(pagePromises).then(() => {
+            // Remove any undefined elements from the answers array
+            answers = answers.filter((answer) => answer !== undefined);
+            resolve(answers);
+          });
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsArrayBuffer(file);
+  });
+}
+// Modified saveExamToFirebase function
 async function saveExamToFirebase() {
   const courseCode = document.querySelector("#courseCode").value;
   const examName = document.querySelector("#examName").value;
@@ -291,25 +358,84 @@ async function saveExamToFirebase() {
     });
   }
 
+  // Get the answers from the PDF
+  const answerSheetFile = document.getElementById("pdfUpload1").files[0];
+  let answers = [];
+  if (answerSheetFile) {
+    answers = await readPDF(answerSheetFile);
+  }
+
+  showSpinner();
   try {
     const docRef = await addDoc(collection(db, "exams"), {
       courseCode: courseCode,
       examName: examName,
       totalMarks: totalMarks,
       questions: questions,
+      answers: answers,
       createdBy: auth.currentUser.uid,
       createdAt: serverTimestamp(),
     });
+
+    // Store the document ID in a separate variable
+    const examId = docRef.id;
+
+    // Update the document with its own ID
+    await updateDoc(doc(db, "exams", examId), {
+      examId: examId,
+    });
+
+    console.log("Exam saved with ID: ", examId);
     successPopUp.style.display = "flex";
-    console.log("Exam saved with ID: ", docRef.id);
-    // You can add user feedback here (e.g., show a success message)
   } catch (error) {
     console.error("Error saving exam: ", error);
-    // You can add user feedback here (e.g., show an error message)
+  } finally {
+    hideSpinner();
   }
 }
 
-// Add this event listener to your submit button
-document
-  .querySelector(".submit-btn")
-  .addEventListener("click", saveExamToFirebase);
+// Event listener for the submit button
+document.querySelector(".submit-btn").addEventListener("click", () => {
+  answerSheetContainer.style.display = "flex";
+  const fileInput = document.getElementById("pdfUpload1");
+  const AnswerSheetsubmitBtn = document.getElementById("AnswerSheetsubmitBtn");
+  const closeBtn = document.getElementById("closeBtn");
+  const uploadLabel = document.getElementById("uploadLabel");
+  const uploadText = document.getElementById("uploadText");
+
+  fileInput.addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (file) {
+      const fileName = file.name;
+      const maxLength = 30;
+      const displayName =
+        fileName.length > maxLength
+          ? fileName.substring(0, maxLength - 3) + "..."
+          : fileName;
+      uploadText.textContent = displayName;
+    } else {
+      uploadText.textContent = "Upload Answer Sheet";
+    }
+  });
+
+  AnswerSheetsubmitBtn.addEventListener("click", function () {
+    const file = fileInput.files[0];
+    if (file) {
+      console.log("Uploading file:", file.name);
+      saveExamToFirebase();
+      successPopUp.style.display = "flex";
+      answerSheetContainer.style.display = "none";
+
+      // Reset the form
+      fileInput.value = "";
+      uploadText.textContent = "Upload Answer Sheet";
+      uploadLabel.style.border = "2px dashed #4876ff";
+    } else {
+      alert("Please select a file first.");
+    }
+  });
+
+  closeBtn.addEventListener("click", function () {
+    answerSheetContainer.style.display = "none";
+  });
+});

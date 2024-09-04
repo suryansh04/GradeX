@@ -213,10 +213,48 @@
       </div>
     </div>
 
+    <div class="answer-sheet-container">
+      <div class="answer-sheet-content">
+        <div class="pdf-close-btn-container">
+          <i class="fa-solid fa-xmark" id="closeBtn"></i>
+        </div>
+        <div class="answer-sheet-container-heading">
+          <p>Upload Answer Sheet</p>
+        </div>
+        <div class="answer-sheet-container-description">
+          <p>We will check it against the student response!</p>
+        </div>
+        <div class="upload-container">
+          <label for="pdfUpload1" class="pdf-btn" id="uploadLabel">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <span id="uploadText">Upload Answer Sheet</span>
+          </label>
+          <input
+            type="file"
+            id="pdfUpload1"
+            accept=".pdf"
+            style="display: none"
+          />
+        </div>
+        <div class="submit-btn-container answer-sheet-submit-btn-container">
+          <button
+            class="submit-btn answer-sheet-submit-btn"
+            id="AnswerSheetsubmitBtn"
+          >
+            Submit
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="loader"></div>
+    <div class="overlay"></div>
+
     <script
       src="https://kit.fontawesome.com/a4b6467969.js"
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+
     <script type="module" src="script.js"></script>
   </body>
 </html>

@@ -58,11 +58,12 @@
             <div class="exams"><h3>Exams</h3></div>
             <div class="exam-list"></div>
           </div>
+          <div class="loader"></div>
         </div>
       </div>
       <div id="result-content" style="display: none">
         <div class="question-answer-container">
-          <div class="question-container">
+          <!-- <div class="question-container">
             <div class="question-number">Q1.</div>
             <div class="question">
               <p>
@@ -76,45 +77,10 @@
             <div class="answer">
               <textarea class></textarea>
             </div>
-          </div>
+          </div> -->
         </div>
 
-        <div class="result-container">
-          <div class="result-container-course-code">
-            <p>PY1001 PHYSICS MIDTERM</p>
-          </div>
-
-          <div class="marks">
-            <div class="result-container-question-number">
-              <p>Q1</p>
-            </div>
-            <div class="question-status-marks">
-              <p>Incorrect</p>
-              <p>5/10</p>
-            </div>
-          </div>
-
-          <div class="feedback-container">
-            <p>Feedback</p>
-            <p class="feedback-text">
-              You have used the wrong formula It should be Force/Area but your
-              calcuation and final answer is correct
-            </p>
-          </div>
-
-          <div class="correct-answer-container">
-            <p>Correct Answer</p>
-            <p class="correct-answer-text">
-              Calculate stress: Stress = Force / Area Force = mass *
-              acceleration due to gravity = 5 kg * 9.8 m/s² = 49 N Area = 3 *
-              10^-6 m² So, stress = 49 N / (3 * 10^-6 m²) = 16.33 * 10^6 N/m² Y
-              = stress / strain Y = (16.33 * 10^6 N/m²) / (2 * 10^-4) Y = 8.165
-              * 10^10 N/m²
-            </p>
-          </div>
-
-          <div class="correct-answer-container"></div>
-        </div>
+        <div class="result-container"></div>
       </div>
     </div>
 
@@ -122,6 +88,8 @@
       src="https://kit.fontawesome.com/a4b6467969.js"
       crossorigin="anonymous"
     ></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
     <script type="module" src="studentportal.js"></script>
   </body>
 </html>

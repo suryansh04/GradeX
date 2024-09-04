@@ -9,12 +9,21 @@ var resultBtnLink = document.querySelector(".result a");
 var examContent = document.querySelector(".exam-content");
 var resultContent = document.getElementById("result-content");
 var mainContent = document.querySelector(".main-content");
-
+var loader = document.querySelector(".loader");
 // Hamburger Menu
 
 hamburger.addEventListener("click", () => {
   sidebar.classList.toggle("active");
 });
+
+/** Spinner Function */
+function showSpinner() {
+  loader.style.display = "block";
+}
+
+function hideSpinner() {
+  loader.style.display = "none";
+}
 
 /* Sidebar(left side ) toggling */
 
@@ -50,6 +59,8 @@ resultBtnSideBar.addEventListener("click", () => {
     resultContent.style.display = "flex";
     resultContent.style.justifyContent = "space-between";
     mainContent.style.paddingRight = "0px";
+    FetchQuestionAnswer();
+    FetchResultData();
   }
 });
 
@@ -67,7 +78,7 @@ import {
   doc,
   collection,
   getDocs,
-  getDoc,
+  updateDoc,
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -123,6 +134,7 @@ onAuthStateChanged(auth, async (user) => {
 // Function to fetch and display exams
 
 async function fetchAndDisplayExams() {
+  showSpinner();
   try {
     const examsCollection = collection(db, "exams");
     const querySnapshot = await getDocs(examsCollection);
@@ -130,11 +142,14 @@ async function fetchAndDisplayExams() {
 
     querySnapshot.forEach((doc) => {
       const examData = doc.data();
+      console.log(doc.data());
       const examElement = createExamElement(examData, doc.id);
       examList.appendChild(examElement);
     });
   } catch (error) {
     console.error("Error fetching exams: ", error);
+  } finally {
+    hideSpinner();
   }
 }
 
@@ -164,6 +179,7 @@ function createExamElement(examData, examId) {
 }
 
 // Function to handle exam start
+
 function startExam(examId) {
   console.log(`Starting exam with ID: ${examId}`);
   // Implement your exam start logic here
@@ -178,8 +194,145 @@ function startExam(examId) {
 
 // Event listener for when the DOM is loaded
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const name = getUrlParameter("name");
   updateUserName(name);
-  fetchAndDisplayExams();
+  await fetchAndDisplayExams();
 });
+
+///-----------------------------------------------------------------------------------------------------------------------------------------
+///----------------------------------------------------------------------------------------------------------------------------------------------
+// Result Container Handling and Fetching Data
+
+//Fetching Question And Student Response
+
+async function FetchQuestionAnswer() {
+  showSpinner();
+  try {
+    const studentAnswersCollection = collection(db, "studentanswers");
+    const querySnapshot = await getDocs(studentAnswersCollection);
+    const QuestionAnswerList = document.querySelector(
+      ".question-answer-container"
+    );
+
+    querySnapshot.forEach((doc) => {
+      const answerData = doc.data();
+      console.log(doc.data());
+      const questionDataArray = answerData.questions;
+      questionDataArray.forEach((elem, index) => {
+        console.log(elem, index);
+        const QuestionAnswerElement = createQuestionAnswerElement(
+          answerData,
+          index
+        );
+        QuestionAnswerList.appendChild(QuestionAnswerElement);
+      });
+    });
+  } catch (error) {
+    console.error("Error fetching exams: ", error);
+  } finally {
+    hideSpinner();
+  }
+}
+
+function createQuestionAnswerElement(answerData, index) {
+  const QuestionAnswerInfoContainer = document.createElement("div");
+  QuestionAnswerInfoContainer.className = "question-answer-info-container";
+  QuestionAnswerInfoContainer.innerHTML = `
+      <div class="question-container">
+                  <div class="question-number">Q<span class = question-index>${
+                    index + 1
+                  }</span></div>
+                  <div class="question">
+                    <p>
+                      ${answerData.questions[index]}
+                    </p>
+                  </div>
+                </div>
+                <div class="answer-container">
+                  <div class="answer">
+                    <textarea readonly>
+                    ${answerData.studentanswer[index]}
+                    </textarea>
+                  </div>
+                </div>
+        `;
+
+  return QuestionAnswerInfoContainer;
+}
+
+//Fetching Claude's Response
+
+async function FetchResultData() {
+  try {
+    const studentAnswersCollection = collection(db, "studentanswers");
+    const querySnapshot = await getDocs(studentAnswersCollection);
+    const resultList = document.querySelector(".result-container");
+
+    querySnapshot.forEach((doc) => {
+      const resultData = doc.data();
+      console.log(doc.data());
+      const resultDataArray = resultData.gradedResponses;
+      resultDataArray.forEach((elem, index) => {
+        console.log(elem, index);
+        const resultElement = createResultElement(resultData, index);
+        resultList.appendChild(resultElement);
+      });
+    });
+  } catch (error) {
+    console.error("Error fetching exams: ", error);
+  } finally {
+    hideSpinner();
+  }
+}
+
+function createResultElement(resultData, index) {
+  const resultAnswerInfoContainer = document.createElement("div");
+  resultAnswerInfoContainer.className = "result-answer-info-container";
+  resultAnswerInfoContainer.innerHTML = `
+      <div class="result-container-course-code">
+            <p>${resultData.examCode} ${resultData.examName}</p>
+          </div>
+          <div class="marks">
+            <div class="result-container-question-number">
+              <p>Q<span class = "index">${index + 1}</span></p>
+            </div>
+            <div class="question-status-marks">
+              <p>${resultData.gradedResponses[index].answerStatus}</p>
+              <p>${resultData.gradedResponses[index].grade}/${
+    resultData.questionMarks[index]
+  }</p>
+            </div>
+          </div>
+
+          <div class="feedback-container">
+            <p>Feedback</p>
+            <p class="feedback-text">
+         ${resultData.gradedResponses[index].feedback}
+            </p>
+          </div>
+
+          <div class="correct-answer-container">
+            <p>Correct Answer</p>
+            <p class="correct-answer-text">
+  ${resultData.gradedResponses[index].correctAnswer}
+            </p>
+          </div>
+
+          <div class="common-mistake-container">
+            <p>Common Mistake</p>
+            <p class="common-mistake-text">
+  ${resultData.gradedResponses[index].commonMistake}
+            </p>
+          </div>
+
+          <div class="learning-tip-container">
+            <p><i class="fa-solid fa-lightbulb"></i>Learning Tip</p>
+            <p class="learning-tip-text">
+          ${resultData.gradedResponses[index].learningTip}
+            </p>
+          </div>
+        `;
+
+  return resultAnswerInfoContainer;
+}
