@@ -253,7 +253,7 @@ db = firestore.client()
 print("Firebase initialized...")
 
 # Initialize Anthropic client
-anthropic_client = anthropic.Client(api_key="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")
+anthropic_client = anthropic.Client(api_key="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")
 print("Anthropic client initialized...")
 
 # Load spaCy model
