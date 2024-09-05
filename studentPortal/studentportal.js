@@ -10,8 +10,9 @@ var examContent = document.querySelector(".exam-content");
 var resultContent = document.getElementById("result-content");
 var mainContent = document.querySelector(".main-content");
 var loader = document.querySelector(".loader");
-// Hamburger Menu
 
+// Hamburger Menu
+let splideInstances = [];
 hamburger.addEventListener("click", () => {
   sidebar.classList.toggle("active");
 });
@@ -41,6 +42,8 @@ examBtnSideBar.addEventListener("click", () => {
     examContent.style.display = "block";
     resultContent.style.display = "none";
     mainContent.style.paddingRight = "30px";
+
+    clearSplideElements();
   }
 });
 
@@ -63,6 +66,27 @@ resultBtnSideBar.addEventListener("click", () => {
     FetchResultData();
   }
 });
+
+function clearSplideElements() {
+  console.log("Clearing Splide elements");
+  // Destroy all Splide instances
+  splideInstances.forEach((instance) => instance.destroy());
+  splideInstances = [];
+
+  // Clear the result container
+  const resultContainer = document.querySelector(".result-container");
+  if (resultContainer) {
+    resultContainer.innerHTML = "";
+  }
+
+  // Clear the question-answer container
+  const questionAnswerContainer = document.querySelector(
+    ".question-answer-container"
+  );
+  if (questionAnswerContainer) {
+    questionAnswerContainer.innerHTML = "";
+  }
+}
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -205,9 +229,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Result Container Handling and Fetching Data
 
 //Fetching Question And Student Response
-
+let containerHeightArray = [];
 async function FetchQuestionAnswer() {
   showSpinner();
+
   try {
     const studentAnswersCollection = collection(db, "studentanswers");
     const querySnapshot = await getDocs(studentAnswersCollection);
@@ -228,6 +253,18 @@ async function FetchQuestionAnswer() {
         QuestionAnswerList.appendChild(QuestionAnswerElement);
       });
     });
+
+    // Setting Height
+
+    var questionInfoContainer = document.querySelectorAll(
+      ".question-answer-info-container"
+    );
+
+    for (let i = 0; i < questionInfoContainer.length; i++) {
+      let height = questionInfoContainer[i].clientHeight;
+      console.log(`The height is ${height}`);
+      containerHeightArray.push(height);
+    }
   } catch (error) {
     console.error("Error fetching exams: ", error);
   } finally {
@@ -264,23 +301,43 @@ function createQuestionAnswerElement(answerData, index) {
 //Fetching Claude's Response
 
 async function FetchResultData() {
+  clearSplideElements(); // Clear existing elements before fetching new data
+  showSpinner();
   try {
     const studentAnswersCollection = collection(db, "studentanswers");
     const querySnapshot = await getDocs(studentAnswersCollection);
     const resultList = document.querySelector(".result-container");
 
+    console.log("Number of documents:", querySnapshot.size);
+
     querySnapshot.forEach((doc) => {
       const resultData = doc.data();
-      console.log(doc.data());
       const resultDataArray = resultData.gradedResponses;
       resultDataArray.forEach((elem, index) => {
-        console.log(elem, index);
         const resultElement = createResultElement(resultData, index);
         resultList.appendChild(resultElement);
       });
     });
+
+    // Initialize all Splide instances after creating all elements
+    document.querySelectorAll(".splide").forEach((elem, index) => {
+      new Splide(elem, {
+        type: "slide",
+        perPage: 1,
+        perMove: 1,
+        arrows: false,
+      }).mount();
+    });
+
+    var splideContainers = document.querySelectorAll(".splide");
+
+    for (let i = 0; i < splideContainers.length; i++) {
+      console.log(splideContainers[i].style.height);
+      splideContainers[i].style.height = `${containerHeightArray[i] + 40}px`;
+      console.log(`${containerHeightArray[i] + 40}px`);
+    }
   } catch (error) {
-    console.error("Error fetching exams: ", error);
+    console.error("Error fetching results:", error);
   } finally {
     hideSpinner();
   }
@@ -288,14 +345,18 @@ async function FetchResultData() {
 
 function createResultElement(resultData, index) {
   const resultAnswerInfoContainer = document.createElement("div");
-  resultAnswerInfoContainer.className = "result-answer-info-container";
+  resultAnswerInfoContainer.className = "splide";
+  resultAnswerInfoContainer.id = `splide-${index}`;
   resultAnswerInfoContainer.innerHTML = `
-      <div class="result-container-course-code">
+    <div class="splide__track">
+      <ul class="splide__list">
+        <li class="splide__slide">
+          <div class="result-container-course-code">
             <p>${resultData.examCode} ${resultData.examName}</p>
           </div>
           <div class="marks">
             <div class="result-container-question-number">
-              <p>Q<span class = "index">${index + 1}</span></p>
+              <p>Q<span class="index">${index + 1}</span></p>
             </div>
             <div class="question-status-marks">
               <p>${resultData.gradedResponses[index].answerStatus}</p>
@@ -305,34 +366,47 @@ function createResultElement(resultData, index) {
             </div>
           </div>
 
-          <div class="feedback-container">
+           <div class="feedback-container">
             <p>Feedback</p>
-            <p class="feedback-text">
-         ${resultData.gradedResponses[index].feedback}
-            </p>
-          </div>
+            <p class="feedback-text">${
+              resultData.gradedResponses[index].feedback
+            }</p>
+          </div>  
+        </li>
+        <li class="splide__slide">
+         <div class="correct-answer-container">
+<p>Correct Answer</p>
+<p class="correct-answer-text">
+${resultData.gradedResponses[index].sampleAnswer}
+</p>
+</div>
+        </li>
+      
 
-          <div class="correct-answer-container">
-            <p>Correct Answer</p>
-            <p class="correct-answer-text">
-  ${resultData.gradedResponses[index].correctAnswer}
-            </p>
-          </div>
+   <li class="splide__slide">
+<div class="common-mistake-container">
+<p>Common Mistake</p>
+<p class="common-mistake-text">
+${resultData.gradedResponses[index].commonMistake}
+</p>
+</div>
 
-          <div class="common-mistake-container">
-            <p>Common Mistake</p>
-            <p class="common-mistake-text">
-  ${resultData.gradedResponses[index].commonMistake}
-            </p>
-          </div>
+        </li>
+  <li class="splide__slide">
+<div class="learning-tip-container">
+<p><i class="fa-solid fa-lightbulb"></i>Learning Tip</p>
+<p class="learning-tip-text">
+${resultData.gradedResponses[index].learningTip}
+</p>
+</div>
 
-          <div class="learning-tip-container">
-            <p><i class="fa-solid fa-lightbulb"></i>Learning Tip</p>
-            <p class="learning-tip-text">
-          ${resultData.gradedResponses[index].learningTip}
-            </p>
-          </div>
-        `;
+        </li>
+      </ul>
+    </div>
+  `;
 
+  console.log(
+    `Created Splide element with id: ${resultAnswerInfoContainer.id}`
+  );
   return resultAnswerInfoContainer;
 }

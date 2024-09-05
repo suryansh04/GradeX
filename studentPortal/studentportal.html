@@ -11,6 +11,13 @@
       href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
       rel="stylesheet"
     />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@splidejs/splide/dist/css/splide.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide/dist/js/splide.min.js"></script>
+
     <link rel="stylesheet" href="studentportal.css" />
   </header>
   <body>
@@ -62,23 +69,7 @@
         </div>
       </div>
       <div id="result-content" style="display: none">
-        <div class="question-answer-container">
-          <!-- <div class="question-container">
-            <div class="question-number">Q1.</div>
-            <div class="question">
-              <p>
-                A steel wire of length 5 m and cross-sectional area 3 x 10^-6 m²
-                stretches by 0.1 cm under a load of 5 kg. Calculate the Young's
-                modulus of steel.
-              </p>
-            </div>
-          </div>
-          <div class="answer-container">
-            <div class="answer">
-              <textarea class></textarea>
-            </div>
-          </div> -->
-        </div>
+        <div class="question-answer-container"></div>
 
         <div class="result-container"></div>
       </div>
@@ -88,6 +79,7 @@
       src="https://kit.fontawesome.com/a4b6467969.js"
       crossorigin="anonymous"
     ></script>
+
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <script type="module" src="studentportal.js"></script>

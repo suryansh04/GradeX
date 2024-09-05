@@ -304,14 +304,19 @@ body {
 }
 
 /** Result Container **/
-
+/* 
 .result-container {
   background-color: #4876ff;
   color: white;
-  /* height: 100vh; */
+
   width: 30%;
   border-radius: 10px;
   padding: 20px;
+} */
+
+.result-container {
+  color: white;
+  width: 30%;
 }
 
 .result-container-course-code {
@@ -478,4 +483,16 @@ body {
   100% {
     clip-path: polygon(50% 50%, 0 0, 100% 0, 100% 100%, 100% 100%, 100% 100%);
   }
+}
+
+/** Styling the result Carousel **/
+
+.splide {
+  background-color: #4876ff;
+  margin-top: 50px;
+  border-radius: 10px;
+  padding: 20px;
+}
+.splide:first-child {
+  margin-top: 0;
 }
