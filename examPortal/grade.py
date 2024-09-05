@@ -239,13 +239,13 @@ import warnings
 print("Starting the script...")
 
 # Initialize Firebase
-cred = credentials.Certificate("../gradex-final-firebase-adminsdk-gcz1t-1a852e7e40.json")
+cred = credentials.Certificate("./gradex-final-firebase-adminsdk-gcz1t-233e2b744b.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 print("Firebase initialized...")
 
 # Initialize Anthropic client
-anthropic_client = anthropic.Client(api_key="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")
+anthropic_client = anthropic.Client(api_key="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")
 print("Anthropic client initialized...")
 
 # Load spaCy model
@@ -323,9 +323,9 @@ def enhanced_grade_answer(question, sample_answer, student_answer, max_marks):
     prompt = f"""You are an experienced, compassionate university teacher who genuinely cares about your students' learning and growth. Your goal is to provide constructive, encouraging feedback that helps students understand their mistakes and improve.
 Grade the following student answer:
 Question: {question}
-Sample Answer: {sample_answer}
+Correct Answer: {sample_answer}
 Student Answer: {student_answer}
-Carefully analyze the student's answer, comparing it to the sample answer. Consider partial credit for correct steps or reasoning, even if the final answer is incorrect. 
+Carefully analyze the student's answer, comparing it to the Correct answer. Consider partial credit for correct steps or reasoning, even if the final answer is incorrect. 
 The algorithm has calculated the following metrics:
 Cosine Similarity: {cosine_sim:.2f}
 Keyword Overlap: {keyword_overlap:.2f}
@@ -340,11 +340,11 @@ Provide a detailed response in the following format:
 Grade: [Use the calculated grade: {grade}/{max_marks}]
 Answer Status: [Provide the answer status based on your analysis]
 Feedback:
-[Provide detailed, encouraging feedback..., keep the feedback to the point it should be maximum of 40 words]
+[Provide detailed, encouraging feedback..., keep the feedback to the point it and also tell me why have deducted marks if you have and it should be maximum of 60 words]
 Correct Answer:
 [Provide the full correct answer, including any important steps or explanations.]
 Common Mistake:
-[Briefly explain a common mistake related to this type of problem,keep it to the point just explain main things if applicable.]
+[Briefly explain a common mistake related to this type of problem,keep it to the point  if applicable.]
 Learning Tip:
 [Offer a concise, helpful tip for better understanding or approaching similar problems in the future.]
 Remember to maintain a supportive and encouraging tone throughout your feedback, focusing on the student's learning journey rather than just the correctness of the answer."""
@@ -356,7 +356,7 @@ Remember to maintain a supportive and encouraging tone throughout your feedback,
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            model="claude-3-opus-20240229"
+            model="claude-3-5-sonnet-20240620"
         )
         
         result = response.content[0].text.strip()
@@ -399,8 +399,13 @@ Remember to maintain a supportive and encouraging tone throughout your feedback,
 async def process_student_answers():
     print("Starting to process student answers...")
     student_answers_ref = db.collection("studentanswers")
-    docs = student_answers_ref.get()
-    print(f"Retrieved {len(docs)} documents from Firebase.")
+    ###Changes
+    try:
+        docs = student_answers_ref.get()
+        print(f"Retrieved {len(docs)} documents from Firebase.")
+    except Exception as e:
+        print(f"Error retrieving documents from Firebase: {e}")
+        return
     
     if len(docs) == 0:
         print("No documents found in the 'studentanswers' collection.")
@@ -437,6 +442,3 @@ async def process_student_answers():
 
         except Exception as e:
             print(f"Error processing document {doc.id}: {e}")
-
-if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(process_student_answers())  
