@@ -245,7 +245,7 @@ db = firestore.client()
 print("Firebase initialized...")
 
 # Initialize Anthropic client
-anthropic_client = anthropic.Client(api_key="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")
+anthropic_client = anthropic.Client(api_key="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")
 print("Anthropic client initialized...")
 
 # Load spaCy model
@@ -254,7 +254,7 @@ nlp = spacy.load("en_core_web_sm")
 def enhanced_grade_answer(question, sample_answer, student_answer, max_marks):
     # Text preprocessing
     def preprocess(text):
-        doc = nlp(text.lower())
+        doc = nlp(text.lower()) 
         return ' '.join([token.lemma_ for token in doc if not token.is_stop and token.is_alpha])
 
     processed_sample = preprocess(sample_answer)
@@ -340,11 +340,11 @@ Provide a detailed response in the following format:
 Grade: [Use the calculated grade: {grade}/{max_marks}]
 Answer Status: [Provide the answer status based on your analysis]
 Feedback:
-[Provide detailed, encouraging feedback...]
+[Provide detailed, encouraging feedback..., keep the feedback to the point it should be maximum of 40 words]
 Correct Answer:
 [Provide the full correct answer, including any important steps or explanations.]
 Common Mistake:
-[Briefly explain a common mistake related to this type of problem, if applicable.]
+[Briefly explain a common mistake related to this type of problem,keep it to the point just explain main things if applicable.]
 Learning Tip:
 [Offer a concise, helpful tip for better understanding or approaching similar problems in the future.]
 Remember to maintain a supportive and encouraging tone throughout your feedback, focusing on the student's learning journey rather than just the correctness of the answer."""
@@ -356,7 +356,7 @@ Remember to maintain a supportive and encouraging tone throughout your feedback,
             messages=[
                 {"role": "user", "content": prompt}
             ],
-            model="claude-3-5-sonnet-20240620"
+            model="claude-3-opus-20240229"
         )
         
         result = response.content[0].text.strip()
@@ -437,3 +437,6 @@ async def process_student_answers():
 
         except Exception as e:
             print(f"Error processing document {doc.id}: {e}")
+
+if __name__ == "__main__":
+    asyncio.get_event_loop().run_until_complete(process_student_answers())  

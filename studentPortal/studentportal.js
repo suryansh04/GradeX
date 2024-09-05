@@ -260,7 +260,7 @@ function createQuestionAnswerElement(answerData, index) {
 
   return QuestionAnswerInfoContainer;
 }
-
+//---------------------------------------------------------------------------------------------------------------------------------------
 //Fetching Claude's Response
 
 async function FetchResultData() {
