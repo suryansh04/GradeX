@@ -247,13 +247,13 @@ from sklearn.naive_bayes import MultinomialNB
 print("Starting the script...")
 
 # Initialize Firebase
-cred = credentials.Certificate("./gradex-final-firebase-adminsdk-gcz1t-233e2b744b.json")
+cred = credentials.Certificate("./gradex-final-firebase-adminsdk-gcz1t-fa8f88025d.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 print("Firebase initialized...")
 
 # Initialize Anthropic client
-anthropic_client = anthropic.Client(api_key="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")
+anthropic_client = anthropic.Client(api_key="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")
 print("Anthropic client initialized...")
 
 # Load spaCy model
@@ -523,7 +523,5 @@ async def process_student_answers():
 
         except Exception as e:
             print(f"Error processing document {doc.id}: {e}")
-
-
 
 

@@ -353,7 +353,11 @@ function createResultElement(resultData, index) {
         <li class="splide__slide">
           <div class="result-container-course-code">
             <p>${resultData.examCode} ${resultData.examName}</p>
+        
           </div>
+              <p class = "p-status">${
+                resultData.gradedResponses[index].plagiarismStatus
+              }</p>
           <div class="marks">
             <div class="result-container-question-number">
               <p>Q<span class="index">${index + 1}</span></p>
