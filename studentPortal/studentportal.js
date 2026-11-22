@@ -90,34 +90,17 @@ function clearSplideElements() {
 
 // -------------------------------------------------------------------------------------------------------------------------------------------------------
 
-// Firebase
+// GradeX API
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  collection,
-  getDocs,
-  updateDoc,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { apiRequest, requireSession } from "../lib/api.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCNGXg9EyuhaM86YiaGFAFrMNqr9yEKkzY",
-  authDomain: "gradex-final.firebaseapp.com",
-  projectId: "gradex-final",
-  storageBucket: "gradex-final.appspot.com",
-  messagingSenderId: "917505988467",
-  appId: "1:917505988467:web:3fd4117e9693f64b369706",
-  measurementId: "G-9ENX8ES9LF",
-};
+requireSession();
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+/** The student's submissions that have been graded; results show only these. */
+async function fetchGradedSubmissions() {
+  const submissions = await apiRequest("/submissions/me");
+  return submissions.filter((submission) => submission.graded_responses);
+}
 
 // Function to get URL parameters
 function getUrlParameter(name) {
@@ -143,32 +126,19 @@ document.addEventListener("DOMContentLoaded", () => {
   updateUserName(name);
 });
 
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    console.log("User is signed in");
-  } else {
-    console.log("User is signed out");
-    window.location.href = "../login/login.html";
-  }
-});
-
 // ----------------------------------------------------------------------------------------------------------------------------------------
-/// Fetching exam data from the firebase (collection - exams)
+/// Fetching exams from the API
 
 // Function to fetch and display exams
 
 async function fetchAndDisplayExams() {
   showSpinner();
   try {
-    const examsCollection = collection(db, "exams");
-    const querySnapshot = await getDocs(examsCollection);
+    const exams = await apiRequest("/exams");
     const examList = document.querySelector(".exam-list");
 
-    querySnapshot.forEach((doc) => {
-      const examData = doc.data();
-      console.log(doc.data());
-      const examElement = createExamElement(examData, doc.id);
-      examList.appendChild(examElement);
+    exams.forEach((exam) => {
+      examList.appendChild(createExamElement(exam, exam.id));
     });
   } catch (error) {
     console.error("Error fetching exams: ", error);
@@ -185,10 +155,10 @@ function createExamElement(examData, examId) {
   examInfoContainer.innerHTML = `
     <div class="exam-main-info-container">
       <div class="course-code-container">
-        <p class="course-code">${examData.courseCode}</p>
+        <p class="course-code">${examData.course_code}</p>
       </div>
       <div class="exam-name-container">
-        <p>${examData.examName}</p>
+        <p>${examData.exam_name}</p>
       </div>
     </div>
     <div class="exam-start-btn-container">
@@ -234,18 +204,13 @@ async function FetchQuestionAnswer() {
   showSpinner();
 
   try {
-    const studentAnswersCollection = collection(db, "studentanswers");
-    const querySnapshot = await getDocs(studentAnswersCollection);
+    const submissions = await fetchGradedSubmissions();
     const QuestionAnswerList = document.querySelector(
       ".question-answer-container"
     );
 
-    querySnapshot.forEach((doc) => {
-      const answerData = doc.data();
-      console.log(doc.data());
-      const questionDataArray = answerData.questions;
-      questionDataArray.forEach((elem, index) => {
-        console.log(elem, index);
+    submissions.forEach((answerData) => {
+      answerData.questions.forEach((_, index) => {
         const QuestionAnswerElement = createQuestionAnswerElement(
           answerData,
           index
@@ -282,14 +247,14 @@ function createQuestionAnswerElement(answerData, index) {
                   }</span></div>
                   <div class="question">
                     <p>
-                      ${answerData.questions[index]}
+                      ${answerData.questions[index].question_text}
                     </p>
                   </div>
                 </div>
                 <div class="answer-container">
                   <div class="answer">
                     <textarea readonly>
-                    ${answerData.studentanswer[index]}
+                    ${answerData.answers[index]}
                     </textarea>
                   </div>
                 </div>
@@ -304,16 +269,11 @@ async function FetchResultData() {
   clearSplideElements(); // Clear existing elements before fetching new data
   showSpinner();
   try {
-    const studentAnswersCollection = collection(db, "studentanswers");
-    const querySnapshot = await getDocs(studentAnswersCollection);
+    const submissions = await fetchGradedSubmissions();
     const resultList = document.querySelector(".result-container");
 
-    console.log("Number of documents:", querySnapshot.size);
-
-    querySnapshot.forEach((doc) => {
-      const resultData = doc.data();
-      const resultDataArray = resultData.gradedResponses;
-      resultDataArray.forEach((elem, index) => {
+    submissions.forEach((resultData) => {
+      resultData.graded_responses.forEach((_, index) => {
         const resultElement = createResultElement(resultData, index);
         resultList.appendChild(resultElement);
       });
@@ -347,25 +307,26 @@ function createResultElement(resultData, index) {
   const resultAnswerInfoContainer = document.createElement("div");
   resultAnswerInfoContainer.className = "splide";
   resultAnswerInfoContainer.id = `splide-${index}`;
+  const response = resultData.graded_responses[index];
   resultAnswerInfoContainer.innerHTML = `
     <div class="splide__track">
       <ul class="splide__list">
         <li class="splide__slide">
           <div class="result-container-course-code">
-            <p>${resultData.examCode} ${resultData.examName}</p>
+            <p>${resultData.course_code} ${resultData.exam_name}</p>
         
           </div>
               <p class = "p-status">${
-                resultData.gradedResponses[index].plagiarismStatus
+                response.plagiarism_status
               }</p>
           <div class="marks">
             <div class="result-container-question-number">
               <p>Q<span class="index">${index + 1}</span></p>
             </div>
             <div class="question-status-marks">
-              <p>${resultData.gradedResponses[index].answerStatus}</p>
-              <p>${resultData.gradedResponses[index].grade}/${
-    resultData.questionMarks[index]
+              <p>${response.answer_status}</p>
+              <p>${response.grade}/${
+    resultData.questions[index].marks
   }</p>
             </div>
           </div>
@@ -373,7 +334,7 @@ function createResultElement(resultData, index) {
            <div class="feedback-container">
             <p>Feedback</p>
             <p class="feedback-text">${
-              resultData.gradedResponses[index].feedback
+              response.feedback
             }</p>
           </div>  
         </li>
@@ -381,7 +342,7 @@ function createResultElement(resultData, index) {
          <div class="correct-answer-container">
 <p>Correct Answer</p>
 <p class="correct-answer-text">
-${resultData.gradedResponses[index].sampleAnswer}
+${response.sample_answer}
 </p>
 </div>
         </li>
@@ -391,7 +352,7 @@ ${resultData.gradedResponses[index].sampleAnswer}
 <div class="common-mistake-container">
 <p>Common Mistake</p>
 <p class="common-mistake-text">
-${resultData.gradedResponses[index].commonMistake}
+${response.common_mistake}
 </p>
 </div>
 
@@ -400,7 +361,7 @@ ${resultData.gradedResponses[index].commonMistake}
 <div class="learning-tip-container">
 <p><i class="fa-solid fa-lightbulb"></i>Learning Tip</p>
 <p class="learning-tip-text">
-${resultData.gradedResponses[index].learningTip}
+${response.learning_tip}
 </p>
 </div>
 
