@@ -188,44 +188,11 @@ function handleFileSelect(event) {
 
 // *****************************************************************************************************************************************
 
-//Firebase
+// GradeX API
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAuth,
-  onAuthStateChanged,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+import { apiRequest, requireSession } from "../lib/api.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCNGXg9EyuhaM86YiaGFAFrMNqr9yEKkzY",
-  authDomain: "gradex-final.firebaseapp.com",
-  projectId: "gradex-final",
-  storageBucket: "gradex-final.appspot.com",
-  messagingSenderId: "917505988467",
-  appId: "1:917505988467:web:3fd4117e9693f64b369706",
-  measurementId: "G-9ENX8ES9LF",
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+requireSession();
 
 // Function to get URL parameters
 
@@ -254,22 +221,20 @@ document.addEventListener("DOMContentLoaded", () => {
   updateUserName(name);
 });
 
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    console.log("User is signed in");
-  } else {
-    console.log("User is signed out");
-    window.location.href = "../login/login.html";
-  }
-});
-
-// -------------------------------------------------------------------------------------------------------------------------------------
-
 // ------------------------------------------------------------------------------------------------------------------------------------
 
-// Storing of the data in the firebase
-const storage = getStorage(app);
-// ... (previous imports and Firebase configuration remain the same)
+// Storing of the data through the API
+
+/** Uploads a question image and returns the URL it is served from. */
+async function uploadQuestionImage(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { url } = await apiRequest("/uploads/images", {
+    method: "POST",
+    formData,
+  });
+  return url;
+}
 
 // Function to read PDF and extract answers
 function readPDF(file) {
@@ -322,13 +287,9 @@ function readPDF(file) {
     reader.readAsArrayBuffer(file);
   });
 }
-// Modified saveExamToFirebase function
-async function saveExamToFirebase() {
+async function saveExam() {
   const courseCode = document.querySelector("#courseCode").value;
   const examName = document.querySelector("#examName").value;
-  const totalMarks = parseFloat(
-    document.querySelector("span.total-marks").textContent
-  );
 
   const questions = [];
   const questionContainers = document.querySelectorAll(".main-border");
@@ -339,22 +300,16 @@ async function saveExamToFirebase() {
     const marks = parseFloat(container.querySelector(".marks").value) || 0;
     const imageInput = container.querySelector('input[type="file"]');
 
-    let imageUrl = "";
+    let imageUrl = null;
     if (imageInput.files.length > 0) {
-      const file = imageInput.files[0];
-      const storageRef = ref(
-        storage,
-        `examImages/${courseCode}_${examName}_Q${i + 1}`
-      );
-      await uploadBytes(storageRef, file);
-      imageUrl = await getDownloadURL(storageRef);
+      imageUrl = await uploadQuestionImage(imageInput.files[0]);
     }
 
     questions.push({
-      questionNumber: i + 1,
-      questionText: questionText,
+      question_number: i + 1,
+      question_text: questionText,
       marks: marks,
-      imageUrl: imageUrl,
+      image_url: imageUrl,
     });
   }
 
@@ -365,77 +320,74 @@ async function saveExamToFirebase() {
     answers = await readPDF(answerSheetFile);
   }
 
-  showSpinner();
-  try {
-    const docRef = await addDoc(collection(db, "exams"), {
-      courseCode: courseCode,
-      examName: examName,
-      totalMarks: totalMarks,
+  const exam = await apiRequest("/exams", {
+    method: "POST",
+    json: {
+      course_code: courseCode,
+      exam_name: examName,
       questions: questions,
       answers: answers,
-      createdBy: auth.currentUser.uid,
-      createdAt: serverTimestamp(),
-    });
-
-    // Store the document ID in a separate variable
-    const examId = docRef.id;
-
-    // Update the document with its own ID
-    await updateDoc(doc(db, "exams", examId), {
-      examId: examId,
-    });
-
-    console.log("Exam saved with ID: ", examId);
-    successPopUp.style.display = "flex";
-  } catch (error) {
-    console.error("Error saving exam: ", error);
-  } finally {
-    hideSpinner();
-  }
+    },
+  });
+  console.log("Exam saved with ID: ", exam.id);
 }
 
-// Event listener for the submit button
+// Answer sheet dialog. Listeners are registered once, not on every submit click,
+// so a second attempt does not save the exam twice.
+const fileInput = document.getElementById("pdfUpload1");
+const AnswerSheetsubmitBtn = document.getElementById("AnswerSheetsubmitBtn");
+const closeBtn = document.getElementById("closeBtn");
+const uploadLabel = document.getElementById("uploadLabel");
+const uploadText = document.getElementById("uploadText");
+
 document.querySelector(".submit-btn").addEventListener("click", () => {
   answerSheetContainer.style.display = "flex";
-  const fileInput = document.getElementById("pdfUpload1");
-  const AnswerSheetsubmitBtn = document.getElementById("AnswerSheetsubmitBtn");
-  const closeBtn = document.getElementById("closeBtn");
-  const uploadLabel = document.getElementById("uploadLabel");
-  const uploadText = document.getElementById("uploadText");
+});
 
-  fileInput.addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    if (file) {
-      const fileName = file.name;
-      const maxLength = 30;
-      const displayName =
-        fileName.length > maxLength
-          ? fileName.substring(0, maxLength - 3) + "..."
-          : fileName;
-      uploadText.textContent = displayName;
-    } else {
-      uploadText.textContent = "Upload Answer Sheet";
-    }
-  });
+fileInput.addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (file) {
+    const fileName = file.name;
+    const maxLength = 30;
+    const displayName =
+      fileName.length > maxLength
+        ? fileName.substring(0, maxLength - 3) + "..."
+        : fileName;
+    uploadText.textContent = displayName;
+  } else {
+    uploadText.textContent = "Upload Answer Sheet";
+  }
+});
 
-  AnswerSheetsubmitBtn.addEventListener("click", function () {
-    const file = fileInput.files[0];
-    if (file) {
-      console.log("Uploading file:", file.name);
-      saveExamToFirebase();
-      successPopUp.style.display = "flex";
-      answerSheetContainer.style.display = "none";
+AnswerSheetsubmitBtn.addEventListener("click", async function () {
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("Please select a file first.");
+    return;
+  }
 
-      // Reset the form
-      fileInput.value = "";
-      uploadText.textContent = "Upload Answer Sheet";
-      uploadLabel.style.border = "2px dashed #4876ff";
-    } else {
-      alert("Please select a file first.");
-    }
-  });
-
-  closeBtn.addEventListener("click", function () {
+  console.log("Uploading file:", file.name);
+  showSpinner();
+  AnswerSheetsubmitBtn.disabled = true;
+  try {
+    // Wait for the save before resetting the form: it reads the answer sheet.
+    await saveExam();
+    successPopUp.style.display = "flex";
     answerSheetContainer.style.display = "none";
-  });
+
+    // Reset the form
+    fileInput.value = "";
+    uploadText.textContent = "Upload Answer Sheet";
+    uploadLabel.style.border = "2px dashed #4876ff";
+  } catch (error) {
+    console.error("Error saving exam: ", error);
+    alert(`The exam could not be saved. ${error.message}`);
+  } finally {
+    AnswerSheetsubmitBtn.disabled = false;
+    hideSpinner();
+  }
+});
+
+closeBtn.addEventListener("click", function () {
+  answerSheetContainer.style.display = "none";
 });

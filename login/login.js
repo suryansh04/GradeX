@@ -32,34 +32,9 @@ function hideSpinner() {
 
 //-----------------------------------------------------------------------------
 
-// Firebase
+// GradeX API
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCNGXg9EyuhaM86YiaGFAFrMNqr9yEKkzY",
-  authDomain: "gradex-final.firebaseapp.com",
-  projectId: "gradex-final",
-  storageBucket: "gradex-final.appspot.com",
-  messagingSenderId: "917505988467",
-  appId: "1:917505988467:web:3fd4117e9693f64b369706",
-  measurementId: "G-9ENX8ES9LF",
-};
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
-const auth = getAuth(app);
+import { apiRequest, setAccessToken } from "../lib/api.js";
 
 // Login functionality
 const form = document.querySelector("form");
@@ -77,38 +52,22 @@ form.addEventListener("submit", async (e) => {
   }
   showSpinner();
   try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    const user = userCredential.user;
+    const { access_token, user } = await apiRequest("/auth/login", {
+      method: "POST",
+      json: { email, password },
+    });
+    setAccessToken(access_token);
 
-    // Get user role from Firestore
+    const encodedName = encodeURIComponent(user.name);
 
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      const role = userData.role;
-      const name = userData.name;
-      const encodedName = encodeURIComponent(name);
-
-      hideSpinner();
-      if (role === "teacher") {
-        window.location.href = `../TeacherPortal/teacher.html?name=${encodedName}`;
-      } else if (role === "student") {
-        window.location.href = `../studentPortal/studentportal.html?name=${encodedName}`;
-      } else {
-        console.error("Unknown role:", role);
-        alert("Login successful, but role is unknown. Please contact support.");
-      }
+    hideSpinner();
+    if (user.role === "teacher") {
+      window.location.href = `../TeacherPortal/teacher.html?name=${encodedName}`;
+    } else if (user.role === "student") {
+      window.location.href = `../studentPortal/studentportal.html?name=${encodedName}`;
     } else {
-      console.error("User document does not exist");
-      hideSpinner();
-      alert(
-        "Login successful, but user data is missing. Please contact support."
-      );
+      console.error("Unknown role:", user.role);
+      alert("Login successful, but role is unknown. Please contact support.");
     }
   } catch (error) {
     console.error("Error:", error);
