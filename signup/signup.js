@@ -69,36 +69,10 @@ function hideSpinner() {
 
 //-----------------------------------------------------------------------------
 
-//Firebase
+// GradeX API
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getFirestore,
-  doc,
-  setDoc,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { apiRequest } from "../lib/api.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCNGXg9EyuhaM86YiaGFAFrMNqr9yEKkzY",
-  authDomain: "gradex-final.firebaseapp.com",
-  projectId: "gradex-final",
-  storageBucket: "gradex-final.appspot.com",
-  messagingSenderId: "917505988467",
-  appId: "1:917505988467:web:3fd4117e9693f64b369706",
-  measurementId: "G-9ENX8ES9LF",
-};
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
-const auth = getAuth(app);
-
-export { db, auth };
 const form = document.querySelector("form");
 const nameInput = document.getElementById("name");
 const emailInput = document.getElementById("email");
@@ -118,19 +92,9 @@ form.addEventListener("submit", async (e) => {
   }
   showSpinner();
   try {
-    // Create user with email and password
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    const user = userCredential.user;
-
-    // Add user details to Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      name: name,
-      email: email,
-      role: role,
+    await apiRequest("/auth/signup", {
+      method: "POST",
+      json: { name, email, password, role },
     });
     hideSpinner();
     window.location.href = "../login/login.html";
