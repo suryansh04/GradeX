@@ -320,69 +320,74 @@ async function saveExam() {
     answers = await readPDF(answerSheetFile);
   }
 
-  showSpinner();
-  try {
-    const exam = await apiRequest("/exams", {
-      method: "POST",
-      json: {
-        course_code: courseCode,
-        exam_name: examName,
-        questions: questions,
-        answers: answers,
-      },
-    });
-
-    console.log("Exam saved with ID: ", exam.id);
-    successPopUp.style.display = "flex";
-  } catch (error) {
-    console.error("Error saving exam: ", error);
-  } finally {
-    hideSpinner();
-  }
+  const exam = await apiRequest("/exams", {
+    method: "POST",
+    json: {
+      course_code: courseCode,
+      exam_name: examName,
+      questions: questions,
+      answers: answers,
+    },
+  });
+  console.log("Exam saved with ID: ", exam.id);
 }
 
-// Event listener for the submit button
+// Answer sheet dialog. Listeners are registered once, not on every submit click,
+// so a second attempt does not save the exam twice.
+const fileInput = document.getElementById("pdfUpload1");
+const AnswerSheetsubmitBtn = document.getElementById("AnswerSheetsubmitBtn");
+const closeBtn = document.getElementById("closeBtn");
+const uploadLabel = document.getElementById("uploadLabel");
+const uploadText = document.getElementById("uploadText");
+
 document.querySelector(".submit-btn").addEventListener("click", () => {
   answerSheetContainer.style.display = "flex";
-  const fileInput = document.getElementById("pdfUpload1");
-  const AnswerSheetsubmitBtn = document.getElementById("AnswerSheetsubmitBtn");
-  const closeBtn = document.getElementById("closeBtn");
-  const uploadLabel = document.getElementById("uploadLabel");
-  const uploadText = document.getElementById("uploadText");
+});
 
-  fileInput.addEventListener("change", function (e) {
-    const file = e.target.files[0];
-    if (file) {
-      const fileName = file.name;
-      const maxLength = 30;
-      const displayName =
-        fileName.length > maxLength
-          ? fileName.substring(0, maxLength - 3) + "..."
-          : fileName;
-      uploadText.textContent = displayName;
-    } else {
-      uploadText.textContent = "Upload Answer Sheet";
-    }
-  });
+fileInput.addEventListener("change", function (e) {
+  const file = e.target.files[0];
+  if (file) {
+    const fileName = file.name;
+    const maxLength = 30;
+    const displayName =
+      fileName.length > maxLength
+        ? fileName.substring(0, maxLength - 3) + "..."
+        : fileName;
+    uploadText.textContent = displayName;
+  } else {
+    uploadText.textContent = "Upload Answer Sheet";
+  }
+});
 
-  AnswerSheetsubmitBtn.addEventListener("click", function () {
-    const file = fileInput.files[0];
-    if (file) {
-      console.log("Uploading file:", file.name);
-      saveExam();
-      successPopUp.style.display = "flex";
-      answerSheetContainer.style.display = "none";
+AnswerSheetsubmitBtn.addEventListener("click", async function () {
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("Please select a file first.");
+    return;
+  }
 
-      // Reset the form
-      fileInput.value = "";
-      uploadText.textContent = "Upload Answer Sheet";
-      uploadLabel.style.border = "2px dashed #4876ff";
-    } else {
-      alert("Please select a file first.");
-    }
-  });
-
-  closeBtn.addEventListener("click", function () {
+  console.log("Uploading file:", file.name);
+  showSpinner();
+  AnswerSheetsubmitBtn.disabled = true;
+  try {
+    // Wait for the save before resetting the form: it reads the answer sheet.
+    await saveExam();
+    successPopUp.style.display = "flex";
     answerSheetContainer.style.display = "none";
-  });
+
+    // Reset the form
+    fileInput.value = "";
+    uploadText.textContent = "Upload Answer Sheet";
+    uploadLabel.style.border = "2px dashed #4876ff";
+  } catch (error) {
+    console.error("Error saving exam: ", error);
+    alert(`The exam could not be saved. ${error.message}`);
+  } finally {
+    AnswerSheetsubmitBtn.disabled = false;
+    hideSpinner();
+  }
+});
+
+closeBtn.addEventListener("click", function () {
+  answerSheetContainer.style.display = "none";
 });
