@@ -1,2 +1,12 @@
 .vercel
 node_modules/
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+.venv/
+
+# User-uploaded files
+backend/uploads/
