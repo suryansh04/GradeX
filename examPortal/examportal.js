@@ -1,37 +1,13 @@
 var loader = document.querySelector(".loader");
 var overlay = document.querySelector(".overlay");
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  addDoc,
-  collection,
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { apiRequest, requireSession } from "../lib/api.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCNGXg9EyuhaM86YiaGFAFrMNqr9yEKkzY",
-  authDomain: "gradex-final.firebaseapp.com",
-  projectId: "gradex-final",
-  storageBucket: "gradex-final.appspot.com",
-  messagingSenderId: "917505988467",
-  appId: "1:917505988467:web:3fd4117e9693f64b369706",
-  measurementId: "G-9ENX8ES9LF",
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+requireSession();
 
 let currentExam;
 let currentQuestionIndex = 0;
 let studentAnswers = []; // Array to store student answers
-let sampleAnswers = []; // Array to store sample answers
-let examQuestions = []; // Array to store exam questions
-let totalMarks = 0; // Variable to store total marks
-let questionMarks = []; // Array to store individual question marks
-let examCode = "";
-let examName = "";
 // Function to get URL parameters
 function getUrlParameter(name) {
   name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -47,24 +23,9 @@ async function fetchExamData(examId) {
   showSpinner();
   hideQuestionContent();
   try {
-    const examDoc = await getDoc(doc(db, "exams", examId));
-    if (examDoc.exists()) {
-      currentExam = examDoc.data();
-      sampleAnswers = currentExam.answers || [];
-      examQuestions = currentExam.questions.map((q) => q.questionText) || [];
-      totalMarks = currentExam.totalMarks || 0; // Fetch total marks
-      questionMarks = currentExam.questions.map((q) => q.marks) || []; // Fetch individual question marks
-      examCode = currentExam.courseCode;
-      examName = currentExam.examName;
-      console.log("Sample answers:", sampleAnswers);
-      console.log("Exam questions:", examQuestions);
-      console.log("Total marks:", totalMarks);
-      console.log("Question marks:", questionMarks);
-      displayQuestion(currentQuestionIndex);
-      showQuestionContent();
-    } else {
-      console.log("No such exam!");
-    }
+    currentExam = await apiRequest(`/exams/${encodeURIComponent(examId)}`);
+    displayQuestion(currentQuestionIndex);
+    showQuestionContent();
   } catch (error) {
     console.error("Error fetching exam:", error);
   } finally {
@@ -81,13 +42,13 @@ function displayQuestion(index) {
 
   const question = currentExam.questions[index];
   document.querySelector(".question-number").textContent = `Q${index + 1}.`;
-  document.querySelector(".question").textContent = question.questionText;
+  document.querySelector(".question").textContent = question.question_text;
   document.querySelector("textarea").value = studentAnswers[index] || "";
 
   // Handle image display
   const imageContainer = document.getElementById("questionImage");
-  if (question.imageUrl) {
-    imageContainer.querySelector("img").src = question.imageUrl;
+  if (question.image_url) {
+    imageContainer.querySelector("img").src = question.image_url;
     imageContainer.classList.remove("hidden");
   } else {
     imageContainer.classList.add("hidden");
@@ -111,7 +72,7 @@ document.querySelector(".next-btn button").addEventListener("click", () => {
   if (currentQuestionIndex < currentExam.questions.length) {
     displayQuestion(currentQuestionIndex);
   } else {
-    // Exam finished, save answers to Firebase
+    // Exam finished, submit answers (the server grades them in the background)
     saveStudentAnswers();
 
     // startExam(examId);
@@ -120,41 +81,22 @@ document.querySelector(".next-btn button").addEventListener("click", () => {
 
 // Updated function to save student answers
 async function saveStudentAnswers() {
-  fetch("http://localhost:5000/run-grading", {
-    method: "POST",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
   showSpinner();
   try {
-    const studentName = getUrlParameter("name");
     const examId = getUrlParameter("examId");
 
-    const docRef = await addDoc(collection(db, "studentanswers"), {
-      studentName: studentName,
-      examId: examId,
-      studentanswer: studentAnswers,
-      questions: examQuestions,
-      sampleAnswers: sampleAnswers,
-      totalMarks: totalMarks, // Add total marks
-      questionMarks: questionMarks, // Add question marks array
-      submittedAt: new Date(),
-      examCode: examCode,
-      examName: examName,
+    const submission = await apiRequest("/submissions", {
+      method: "POST",
+      json: { exam_id: examId, answers: studentAnswers },
     });
 
-    console.log("Student answers saved with ID: ", docRef.id);
+    console.log("Student answers saved with ID: ", submission.id);
     alert("Exam completed and answers submitted successfully!");
     // Redirect to a thank you page or back to the main menu
     // window.location.href = "thank-you.html";
   } catch (error) {
     console.error("Error saving student answers:", error);
-    alert("There was an error submitting your answers. Please try again.");
+    alert(`There was an error submitting your answers. ${error.message}`);
   } finally {
     hideSpinner();
   }
