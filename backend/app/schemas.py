@@ -1,10 +1,13 @@
+import enum
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.models import Role
+
+MAX_ANSWER_LENGTH = 20_000
 
 
 class ORMModel(BaseModel):
@@ -52,6 +55,8 @@ class Question(BaseModel):
 class ExamCreate(BaseModel):
     course_code: str = Field(min_length=1, max_length=50)
     exam_name: str = Field(min_length=1, max_length=200)
+    # Null for an untimed exam.
+    duration_minutes: int | None = Field(default=None, ge=1, le=600)
     questions: list[Question] = Field(min_length=1)
     answers: list[str]
 
@@ -60,25 +65,56 @@ class ExamSummary(ORMModel):
     id: uuid.UUID
     course_code: str
     exam_name: str
+    total_marks: float
+    duration_minutes: int | None
+    question_count: int
+    created_at: datetime
+
+
+class AttemptStatus(enum.StrEnum):
+    IN_PROGRESS = "in_progress"
+    SUBMITTED = "submitted"
+
+
+class AttemptSummary(BaseModel):
+    submission_id: uuid.UUID
+    status: AttemptStatus
+
+
+class ExamListItem(ExamSummary):
+    # The current student's attempt; always null for teachers.
+    attempt: AttemptSummary | None = None
 
 
 class ExamDetail(ExamSummary):
     """An exam as shown to a student taking it: model answers are left out."""
 
-    total_marks: float
     questions: list[Question]
 
 
-# --- Submissions ------------------------------------------------------------
+# --- Attempts and submissions -----------------------------------------------
 
 
-class SubmissionCreate(BaseModel):
-    exam_id: uuid.UUID
+class AttemptOut(BaseModel):
+    submission_id: uuid.UUID
+    exam: ExamDetail
     answers: list[str]
+    started_at: datetime
+    # When the attempt must be submitted; null for an untimed exam.
+    deadline: datetime | None
+    # Lets the client correct for a clock that differs from the server's.
+    server_time: datetime
 
 
-class SubmissionCreated(ORMModel):
-    id: uuid.UUID
+class AnswersIn(BaseModel):
+    answers: list[Annotated[str, Field(max_length=MAX_ANSWER_LENGTH)]] = Field(max_length=500)
+
+
+class SubmitResult(BaseModel):
+    submission_id: uuid.UUID
+    submitted_at: datetime
+    # False when time had run out: the last saved draft was submitted instead.
+    answers_accepted: bool
 
 
 class GradedResponse(BaseModel):
@@ -100,8 +136,32 @@ class SubmissionResult(BaseModel):
     questions: list[Question]
     answers: list[str]
     graded_responses: list[GradedResponse] | None
+    score: float | None
+    total_marks: float
     submitted_at: datetime
 
 
 class UploadedImage(BaseModel):
     url: str
+
+
+# --- Teacher analytics ------------------------------------------------------
+
+
+class ExamStats(ExamSummary):
+    submission_count: int
+    graded_count: int
+    # Mean score of graded submissions, in marks; null when none are graded.
+    average_score: float | None
+
+
+class StudentSubmissionRow(BaseModel):
+    submission_id: uuid.UUID
+    student_name: str
+    student_email: str
+    submitted_at: datetime
+    score: float | None
+
+
+class ExamReport(ExamStats):
+    submissions: list[StudentSubmissionRow]

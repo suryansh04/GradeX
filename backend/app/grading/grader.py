@@ -199,6 +199,19 @@ def _section(pattern: str, text: str) -> str | None:
 def grade_answer(
     question: str, sample_answer: str, student_answer: str, max_marks: float
 ) -> dict[str, Any]:
+    # Timed exams can end with questions left blank: no models or Claude call needed.
+    if not student_answer.strip():
+        return {
+            "grade": 0,
+            "answer_status": "Not answered",
+            "feedback": "No answer was submitted for this question.",
+            "sample_answer": sample_answer,
+            "common_mistake": "",
+            "learning_tip": "",
+            "plagiarism_status": "Not checked",
+            "metrics": {},
+        }
+
     nlp = _nlp()
 
     def lemmatize(text: str) -> str:

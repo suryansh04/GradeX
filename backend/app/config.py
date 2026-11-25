@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     claude_model: str = "claude-opus-5-5"
     # Origins allowed to call the API from a browser (the static frontend).
     cors_origins: list[str] = ["http://127.0.0.1:5501", "http://localhost:5501"]
+    # Extra time after a timed exam's deadline during which a submission is still
+    # accepted, to absorb network latency on auto-submit.
+    submission_grace_seconds: int = 30
     upload_dir: Path = BACKEND_DIR / "uploads"
     max_upload_bytes: int = 5 * 1024 * 1024
 
