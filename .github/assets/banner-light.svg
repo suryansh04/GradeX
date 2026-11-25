@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" font-family="Poppins, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.6" fill="#e3e6f1"/>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="420" fill="#f7f8fc"/>
+  <rect width="1280" height="420" fill="url(#dots)"/>
+
+  <circle cx="132" cy="160" r="44" fill="#4876ff"/>
+  <text x="132" y="178" text-anchor="middle" font-size="50" font-weight="500" fill="#fff">G</text>
+  <text x="196" y="182" font-size="64" font-weight="700" fill="#1b1f2e" letter-spacing="-1">GradeX</text>
+  <text x="90" y="250" font-size="27" fill="#5b6275">Set an exam. Collect the answers.</text>
+  <text x="90" y="288" font-size="27" fill="#5b6275">Get every answer graded and explained.</text>
+  <rect x="90" y="322" width="250" height="40" rx="20" fill="#e8eeff"/>
+  <text x="215" y="348" text-anchor="middle" font-size="16" font-weight="600" fill="#4876ff">AI-assisted exam grading</text>
+
+  <g filter="url(#shadow)">
+    <rect x="730" y="70" width="460" height="290" rx="20" fill="#ffffff" stroke="#d9dcea"/>
+  </g>
+  <text x="760" y="112" font-size="18" font-weight="600" fill="#1b1f2e">PHY101 · Midterm</text>
+  <rect x="1040" y="94" width="120" height="26" rx="13" fill="#e3f6ec"/>
+  <text x="1100" y="112" text-anchor="middle" font-size="13" font-weight="600" fill="#1a9b5b">No plagiarism</text>
+  <rect x="760" y="138" width="56" height="56" rx="14" fill="#4876ff"/>
+  <text x="788" y="174" text-anchor="middle" font-size="20" font-weight="700" fill="#fff">Q1</text>
+  <text x="834" y="160" font-size="16" fill="#5b6275">Answer status</text>
+  <text x="834" y="186" font-size="20" font-weight="600" fill="#c77700">Partially correct</text>
+  <text x="1160" y="182" text-anchor="end" font-size="36" font-weight="700" fill="#1b1f2e">4<tspan font-size="22" fill="#5b6275">/5</tspan></text>
+  <text x="760" y="242" font-size="16" font-weight="600" fill="#1b1f2e">Feedback</text>
+  <rect x="760" y="262" width="380" height="10" rx="5" fill="#e9ecf5"/><rect x="760" y="282" width="340" height="10" rx="5" fill="#e9ecf5"/><rect x="760" y="302" width="360" height="10" rx="5" fill="#e9ecf5"/>
+  <rect x="760" y="326" width="128" height="22" rx="11" fill="#e8eeff"/>
+  <text x="824" y="341" text-anchor="middle" font-size="12" font-weight="600" fill="#4876ff">Correct answer</text>
+  <rect x="896" y="326" width="128" height="22" rx="11" fill="#e8eeff"/>
+  <text x="960" y="341" text-anchor="middle" font-size="12" font-weight="600" fill="#4876ff">Common mistake</text>
+  <rect x="1032" y="326" width="128" height="22" rx="11" fill="#e8eeff"/>
+  <text x="1096" y="341" text-anchor="middle" font-size="12" font-weight="600" fill="#4876ff">Learning tip</text>
+</svg>
