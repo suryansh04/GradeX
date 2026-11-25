@@ -1,8 +1,8 @@
-import { ApiError, requireRole } from "../lib/api.js";
+import { ApiError, onSessionChange, requireRole } from "../lib/api.js";
 import { startCountdown } from "../lib/countdown.js";
 import { $, html, setHtml } from "../lib/dom.js";
 import { showToast, withLoader } from "../lib/feedback.js";
-import { formatCountdown, formatMarks, pluralize } from "../lib/format.js";
+import { formatCountdown, formatMarkCount, pluralize } from "../lib/format.js";
 import { ExamSession, SaveStatus } from "./exam-session.js";
 
 const PORTAL = "../studentPortal/studentportal.html";
@@ -62,7 +62,7 @@ function showQuestion(index) {
   const isLast = index === session.exam.questions.length - 1;
 
   $("#question-number").textContent = `Q${index + 1} of ${session.exam.questions.length}`;
-  $("#question-marks").textContent = pluralize(Number(formatMarks(question.marks)), "mark");
+  $("#question-marks").textContent = formatMarkCount(question.marks);
   $("#question-text").textContent = question.question_text;
 
   const figure = $("#question-image");
@@ -207,6 +207,7 @@ async function init() {
     return;
   }
   if (!(await requireRole("student"))) return;
+  onSessionChange(() => window.location.reload());
 
   try {
     session = await withLoader(() => ExamSession.start(examId));

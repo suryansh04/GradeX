@@ -1,7 +1,8 @@
 import { apiRequest } from "../lib/api.js";
 import { $, html, setHtml } from "../lib/dom.js";
-import { showToast, withLoader } from "../lib/feedback.js";
-import { formatDateTime, formatDuration, formatMarks, pluralize } from "../lib/format.js";
+import { examMeta } from "../lib/exam-meta.js";
+import { runTask } from "../lib/feedback.js";
+import { formatDateTime, formatDuration, formatMarks } from "../lib/format.js";
 import { initPortal } from "../lib/shell.js";
 
 const examList = $("#exam-list");
@@ -9,15 +10,6 @@ const resultsList = $("#results");
 const startDialog = $("#start-dialog");
 
 const examUrl = (examId) => `../examPortal/examportal.html?examId=${encodeURIComponent(examId)}`;
-
-/** Runs a loader-wrapped request, reporting failures as a toast. */
-async function load(task) {
-  try {
-    await withLoader(task);
-  } catch (error) {
-    showToast(error.message, "error");
-  }
-}
 
 // --- Exams ---------------------------------------------------------------------
 
@@ -44,11 +36,7 @@ function examRow(exam) {
       <span class="pill pill-code">${exam.course_code}</span>
       <div>
         <h3 class="exam-row-title">${exam.exam_name}</h3>
-        <p class="exam-row-meta">
-          <span><i class="fa-regular fa-clock"></i> ${formatDuration(exam.duration_minutes)}</span>
-          <span>${pluralize(exam.question_count, "question")}</span>
-          <span>${pluralize(Number(formatMarks(exam.total_marks)), "mark")}</span>
-        </p>
+        ${examMeta(exam)}
       </div>
       <div class="exam-row-action">${examAction(exam)}</div>
     </article>`;
@@ -57,7 +45,7 @@ function examRow(exam) {
 let exams = [];
 
 async function loadExams() {
-  await load(async () => {
+  await runTask(async () => {
     exams = await apiRequest("/exams");
     setHtml(
       examList,
@@ -176,7 +164,7 @@ function mountCarousels() {
 }
 
 async function loadResults(focusSubmissionId) {
-  await load(async () => {
+  await runTask(async () => {
     const submissions = await apiRequest("/submissions/me");
     setHtml(
       resultsList,

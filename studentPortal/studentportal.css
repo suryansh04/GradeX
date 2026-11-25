@@ -23,14 +23,6 @@
   overflow-wrap: anywhere;
 }
 
-.exam-row-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 14px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
 .exam-row-action {
   display: flex;
   flex-wrap: wrap;

@@ -206,6 +206,7 @@ a {
 
 .field {
   display: grid;
+  align-content: start;
   gap: 8px;
 }
 
@@ -339,6 +340,14 @@ textarea.input {
 .empty-state i {
   font-size: 32px;
   color: var(--blue);
+}
+
+.exam-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  color: var(--text-muted);
+  font-size: 14px;
 }
 
 /* --- Dialogs (native <dialog>) ---------------------------------------------- */
