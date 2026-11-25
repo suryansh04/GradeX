@@ -125,7 +125,7 @@ uvicorn app.main:app --reload     # http://localhost:8000, API docs at /docs
 npm install                       # from the repository root
 ```
 
-Serve the repository root with Live Server (port 5501, set in `.vscode/settings.json`) and open `login/login.html`. The API URL is in [`lib/config.js`](lib/config.js).
+Serve the repository root with Live Server (port 5501, set in `.vscode/settings.json`) and open `index.html` for the landing page, or `login/login.html` to sign in. The API URL is in [`lib/config.js`](lib/config.js).
 
 To change the database, edit `backend/app/models.py`, then run `alembic revision --autogenerate -m "describe the change"` and `alembic upgrade head`.
 
@@ -138,9 +138,10 @@ cd backend
 pip install -r requirements-dev.txt
 psql -U postgres -c "CREATE DATABASE gradex_test;"
 TEST_DATABASE_URL=postgresql+psycopg://postgres:PASSWORD@localhost:5432/gradex_test pytest
+ruff check . && ruff format --check .   # lint and formatting (settings in ruff.toml)
 ```
 
-**Frontend** (escaping, formatting, the countdown and answer-sheet parsing):
+**Frontend** (escaping, formatting, the countdown, answer-sheet parsing and the landing-page demo):
 
 ```bash
 npm test
@@ -155,9 +156,11 @@ backend/
     models.py           users, exams, submissions (one attempt per student and exam)
     routers/            auth, exams, submissions, uploads, analytics
     services/           attempt rules: deadlines, autosave, submitting
-    grading/            grader (measures, plagiarism check, Claude) and the grading job
+    grading/            similarity measures and plagiarism check (grader.py), the Claude review
+                        with structured output (review.py), and the grading job (service.py)
   alembic/              database migrations
   tests/                pytest suite
+index.html  home/       landing page and its click-through product demo
 styles/                 design system: base, portal shell, auth pages
 lib/                    shared modules: API client, safe HTML, portal shell, loader, toasts, countdown
 login/  signup/         sign-in and sign-up pages
