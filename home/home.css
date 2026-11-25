@@ -4,11 +4,13 @@
   --home-max: 1252px;
   --brand-gradient: linear-gradient(90deg, #0f62fe 0%, #3d8bff 100%);
   --bubble: #4d73f5;
-  --bubble-text: #ffffff;
   --card-border: #e3e5eb;
   --nav-link: #a3a6ae;
   --home-muted: #8a8d96;
   --card-hover: #1d9bf0;
+  --tour-accent: #4d7cf6;
+  --chrome: #262626;
+  --chrome-raised: #3b3b3b;
 }
 
 html {
@@ -169,7 +171,7 @@ html {
   height: clamp(30px, 3.4vw, 48px);
   padding: 0 clamp(10px, 1.4vw, 18px);
   border-radius: 10px 10px 0 0;
-  background: #262626;
+  background: var(--chrome);
   color: #cfcfcf;
   font-size: clamp(10px, 1.1vw, 16px);
 }
@@ -213,7 +215,7 @@ html {
 
 .browser-nav button:hover:not(:disabled),
 .browser-expand:hover {
-  background: #3b3b3b;
+  background: var(--chrome-raised);
   color: #fff;
 }
 
@@ -232,7 +234,7 @@ html {
   height: 64%;
   overflow: hidden;
   border-radius: 6px;
-  background: #3b3b3b;
+  background: var(--chrome-raised);
   color: #e6e6e6;
   white-space: nowrap;
 }
@@ -264,8 +266,8 @@ html {
   position: absolute;
   border: 0;
   border-radius: clamp(4px, 0.7vw, 10px);
-  background: rgba(77, 124, 246, 0.08);
-  box-shadow: 0 0 0 2px rgba(77, 124, 246, 0.9), 0 0 0 7px rgba(77, 124, 246, 0.22);
+  background: color-mix(in srgb, var(--tour-accent) 8%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tour-accent) 90%, transparent), 0 0 0 7px color-mix(in srgb, var(--tour-accent) 22%, transparent);
   cursor: pointer;
   transition: left 0.35s, top 0.35s, width 0.35s, height 0.35s;
 }
@@ -283,7 +285,7 @@ html {
   aspect-ratio: 1;
   border: 2px solid #fff;
   border-radius: 50%;
-  background: #4d7cf6;
+  background: var(--tour-accent);
   transform: translate(45%, -45%);
 }
 
@@ -292,7 +294,7 @@ html {
   position: absolute;
   inset: -2px;
   border-radius: 50%;
-  background: #4d7cf6;
+  background: var(--tour-accent);
   animation: beacon 1.6s ease-out infinite;
 }
 
@@ -315,7 +317,7 @@ html {
   padding: 0.75em 1.2em;
   border: 0;
   border-radius: 14px;
-  background: #4d7cf6;
+  background: var(--tour-accent);
   box-shadow: 0 10px 24px rgba(59, 120, 246, 0.4);
   color: #fff;
   font: 500 clamp(11px, 1.3vw, 18px) / 1.35 var(--font);
@@ -360,7 +362,7 @@ html {
   bottom: 0;
   left: 0;
   height: 4px;
-  background: rgba(77, 124, 246, 0.15);
+  background: color-mix(in srgb, var(--tour-accent) 15%, transparent);
 }
 
 .tour-progress::after {
@@ -368,7 +370,7 @@ html {
   display: block;
   width: var(--progress, 0%);
   height: 100%;
-  background: #4d7cf6;
+  background: var(--tour-accent);
   transition: width 0.35s;
 }
 
@@ -671,7 +673,7 @@ html {
 .footer-inner p {
   max-width: 420px;
   margin-top: 10px;
-  color: #808490;
+  color: var(--home-muted);
   font-size: 15px;
   font-weight: 300;
 }

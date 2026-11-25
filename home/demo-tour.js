@@ -6,7 +6,7 @@
 
 const SCREEN_DIR = "home/demo/";
 
-function placement({ x, y, w, h }) {
+export function placement({ x, y, w, h }) {
   const centerX = x + w / 2;
   return {
     side: y + h / 2 > 55 ? "above" : "below",
