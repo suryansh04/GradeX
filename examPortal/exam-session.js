@@ -2,7 +2,7 @@
  * One student's attempt at an exam: its answers, autosaving them to the server,
  * the deadline, and submitting. Knows nothing about the page's markup.
  */
-import { apiRequest, ApiError } from "../lib/api.js";
+import { apiRequest, isConflict } from "../lib/api.js";
 
 const AUTOSAVE_DELAY_MS = 1500;
 
@@ -80,7 +80,7 @@ export class ExamSession {
       })
       .catch((error) => {
         this.#setStatus(SaveStatus.FAILED);
-        if (error instanceof ApiError && error.status === 409) {
+        if (isConflict(error)) {
           this.onAttemptClosed(error);
         } else {
           // Probably a network blip: try again shortly.

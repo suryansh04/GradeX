@@ -1,6 +1,6 @@
-import { ApiError, onSessionChange, requireRole } from "../lib/api.js";
+import { isConflict, onSessionChange, requireRole } from "../lib/api.js";
 import { startCountdown } from "../lib/countdown.js";
-import { $, html, setHtml } from "../lib/dom.js";
+import { $, closeOnDataClose, html, setHtml } from "../lib/dom.js";
 import { showToast, withLoader } from "../lib/feedback.js";
 import { formatCountdown, formatMarkCount, pluralize } from "../lib/format.js";
 import { ExamSession, SaveStatus } from "./exam-session.js";
@@ -156,7 +156,7 @@ $("#review-list").addEventListener("click", (event) => {
   showQuestion(Number(button.dataset.question));
   answerInput.focus();
 });
-reviewDialog.addEventListener("click", (event) => event.target.closest("[data-close]") && reviewDialog.close());
+closeOnDataClose(reviewDialog);
 
 let submitting = false;
 
@@ -178,7 +178,7 @@ async function submit() {
     });
   } catch (error) {
     submitting = false;
-    if (error instanceof ApiError && error.status === 409) {
+    if (isConflict(error)) {
       showMessage({ title: "This exam is closed", text: error.message, actions: [toResults, toExams] });
     } else {
       showToast(`${error.message} Your answers are still here, so try submitting again.`, "error");
@@ -212,7 +212,7 @@ async function init() {
   try {
     session = await withLoader(() => ExamSession.start(examId));
   } catch (error) {
-    const closed = error instanceof ApiError && error.status === 409;
+    const closed = isConflict(error);
     showMessage({
       tone: closed ? "info" : "error",
       title: closed ? "This exam is closed" : "Couldn't open this exam",

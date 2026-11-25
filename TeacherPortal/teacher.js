@@ -1,5 +1,5 @@
 import { apiRequest } from "../lib/api.js";
-import { $ } from "../lib/dom.js";
+import { $, closeOnDataClose } from "../lib/dom.js";
 import { runTask as run, showToast } from "../lib/feedback.js";
 import { pluralize } from "../lib/format.js";
 import { initPortal } from "../lib/shell.js";
@@ -14,9 +14,8 @@ const sheetInput = $("#sheet-input");
 const publishButton = $("#publish-btn");
 let sheetAnswers = null;
 
-for (const dialog of [sheetDialog, successDialog]) {
-  dialog.addEventListener("click", (event) => event.target.closest("[data-close]") && dialog.close());
-}
+closeOnDataClose(sheetDialog);
+closeOnDataClose(successDialog);
 
 // --- Step 1: check the form, then ask for the answer sheet ---------------------------
 
@@ -95,10 +94,13 @@ async function uploadImage(file) {
 
 async function publish() {
   const { questions, ...details } = builder.values();
-  const withImages = [];
-  for (const { imageFile, ...question } of questions) {
-    withImages.push({ ...question, image_url: imageFile ? await uploadImage(imageFile) : null });
-  }
+  // Upload every question's image at once rather than one after another.
+  const withImages = await Promise.all(
+    questions.map(async ({ imageFile, ...question }) => ({
+      ...question,
+      image_url: imageFile ? await uploadImage(imageFile) : null,
+    }))
+  );
   return apiRequest("/exams", {
     method: "POST",
     json: { ...details, questions: withImages, answers: sheetAnswers },

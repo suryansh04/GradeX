@@ -7,6 +7,7 @@ import { initPortal } from "../lib/shell.js";
 
 const examList = $("#exam-list");
 const resultsList = $("#results");
+const resultsPanel = $('[data-panel="results"]');
 const startDialog = $("#start-dialog");
 
 const examUrl = (examId) => `../examPortal/examportal.html?examId=${encodeURIComponent(examId)}`;
@@ -121,7 +122,7 @@ function resultCard(question, response, index) {
 const pendingCard = html`
   <div class="result-pending">
     <i class="fa-solid fa-hourglass-half"></i>
-    <p>Being graded. Refresh in a minute.</p>
+    <p>Being graded. This page updates on its own.</p>
   </div>`;
 
 function resultBlock(submission) {
@@ -163,18 +164,47 @@ function mountCarousels() {
   );
 }
 
+function renderResults(submissions) {
+  setHtml(
+    resultsList,
+    submissions.length
+      ? submissions.map(resultBlock)
+      : html`<div class="empty-state"><i class="fa-solid fa-chart-simple"></i>Your results will appear here after you submit an exam.</div>`
+  );
+  mountCarousels();
+}
+
+// While any result is still being graded, check again quietly (no loader) every so often.
+const POLL_MS = 15_000;
+let pollTimer;
+const gradedCount = (submissions) => submissions.filter((s) => s.score !== null).length;
+
+function pollWhileGrading(submissions) {
+  clearTimeout(pollTimer);
+  if (gradedCount(submissions) === submissions.length) return;
+  pollTimer = setTimeout(async () => {
+    if (resultsPanel.hidden) return; // Showing the tab again reloads and restarts polling.
+    let latest = submissions;
+    try {
+      latest = await apiRequest("/submissions/me");
+      // Re-render only when something changed, so an open carousel isn't reset.
+      if (latest.length !== submissions.length || gradedCount(latest) !== gradedCount(submissions)) {
+        renderResults(latest);
+      }
+    } catch {
+      // Offline for a moment: keep what is on screen and try again next time.
+    }
+    pollWhileGrading(latest);
+  }, POLL_MS);
+}
+
 async function loadResults(focusSubmissionId) {
-  await runTask(async () => {
-    const submissions = await apiRequest("/submissions/me");
-    setHtml(
-      resultsList,
-      submissions.length
-        ? submissions.map(resultBlock)
-        : html`<div class="empty-state"><i class="fa-solid fa-chart-simple"></i>Your results will appear here after you submit an exam.</div>`
-    );
-    mountCarousels();
-  });
+  clearTimeout(pollTimer);
+  const submissions = await runTask(() => apiRequest("/submissions/me"));
+  if (!submissions) return;
+  renderResults(submissions);
   if (focusSubmissionId) document.getElementById(`result-${focusSubmissionId}`)?.scrollIntoView();
+  pollWhileGrading(submissions);
 }
 
 $("#refresh-results").addEventListener("click", () => loadResults());
