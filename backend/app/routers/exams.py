@@ -25,7 +25,9 @@ router = APIRouter(prefix="/exams", tags=["exams"])
 
 
 @router.get("", response_model=list[ExamListItem])
-def list_exams(db: DbSession, user: CurrentUser, schedule_grading: GradingScheduler) -> list[ExamListItem]:
+def list_exams(
+    db: DbSession, user: CurrentUser, schedule_grading: GradingScheduler
+) -> list[ExamListItem]:
     exams = db.scalars(select(Exam).order_by(Exam.created_at.desc())).all()
     items = [ExamListItem.model_validate(exam) for exam in exams]
     if user.role != Role.STUDENT:

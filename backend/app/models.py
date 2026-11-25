@@ -36,16 +36,12 @@ class User(Base):
     role: Mapped[Role] = mapped_column(
         Enum(Role, name="user_role", values_callable=lambda roles: [r.value for r in roles])
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class Exam(Base):
     __tablename__ = "exams"
-    __table_args__ = (
-        CheckConstraint("duration_minutes > 0", name="ck_exams_duration_positive"),
-    )
+    __table_args__ = (CheckConstraint("duration_minutes > 0", name="ck_exams_duration_positive"),)
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     course_code: Mapped[str] = mapped_column(String(50))
@@ -60,9 +56,7 @@ class Exam(Base):
     created_by: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), index=True
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     @property
     def question_count(self) -> int:
@@ -88,9 +82,7 @@ class Submission(Base):
     answers: Mapped[list[str]] = mapped_column(ARRAY(Text))
     # Null until the grader has processed the submission.
     graded_responses: Mapped[list[dict[str, Any]] | None] = mapped_column(JSONB)
-    started_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     # Null while the attempt is in progress.
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 

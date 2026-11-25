@@ -30,6 +30,7 @@ from app.main import app  # noqa: E402
 from app.services import attempts  # noqa: E402
 from tests.helpers import auth_headers  # noqa: E402
 
+
 @pytest.fixture(scope="session", autouse=True)
 def _schema() -> Iterator[None]:
     Base.metadata.drop_all(engine)

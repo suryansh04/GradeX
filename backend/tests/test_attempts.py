@@ -11,11 +11,15 @@ def start(client, exam, student):
 
 
 def save(client, submission_id, student, answers):
-    return client.put(f"/submissions/{submission_id}/answers", headers=student, json={"answers": answers})
+    return client.put(
+        f"/submissions/{submission_id}/answers", headers=student, json={"answers": answers}
+    )
 
 
 def submit(client, submission_id, student, answers):
-    return client.post(f"/submissions/{submission_id}/submit", headers=student, json={"answers": answers})
+    return client.post(
+        f"/submissions/{submission_id}/submit", headers=student, json={"answers": answers}
+    )
 
 
 def test_attempt_hides_model_answers_and_starts_blank(client, teacher, student, clock):
@@ -105,7 +109,9 @@ def test_late_submission_keeps_last_saved_draft(client, teacher, student, clock,
     assert results[0]["answers"] == ["saved draft", ""]
 
 
-def test_abandoned_timed_attempt_is_submitted_automatically(client, teacher, student, clock, graded):
+def test_abandoned_timed_attempt_is_submitted_automatically(
+    client, teacher, student, clock, graded
+):
     exam = create_exam(client, teacher, duration_minutes=5)
     submission_id = start(client, exam, student).json()["submission_id"]
     save(client, submission_id, student, ["half done", ""])

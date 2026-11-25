@@ -29,9 +29,13 @@ def scored(monkeypatch):
 
 
 def attempt(client, exam, student, submit=True):
-    submission_id = client.post(f"/exams/{exam['id']}/attempt", headers=student).json()["submission_id"]
+    submission_id = client.post(f"/exams/{exam['id']}/attempt", headers=student).json()[
+        "submission_id"
+    ]
     if submit:
-        client.post(f"/submissions/{submission_id}/submit", headers=student, json={"answers": ["a1", "a2"]})
+        client.post(
+            f"/submissions/{submission_id}/submit", headers=student, json={"answers": ["a1", "a2"]}
+        )
     return uuid.UUID(submission_id)
 
 
@@ -46,7 +50,10 @@ def test_grades_each_answer_against_its_model_answer(client, teacher, student, s
 
     service.grade_submission(submission_id)
 
-    assert scored == [("Question 1?", "Model answer 1", "a1", 5), ("Question 2?", "Model answer 2", "a2", 3)]
+    assert scored == [
+        ("Question 1?", "Model answer 1", "a1", 5),
+        ("Question 2?", "Model answer 2", "a2", 3),
+    ]
     assert len(graded_responses(submission_id)) == 2
 
 
@@ -63,7 +70,9 @@ def test_skips_graded_and_unsubmitted_attempts(client, teacher, student, scored)
 
 def test_pending_run_grades_submitted_and_overdue_attempts(client, teacher, student, scored, clock):
     submitted = attempt(client, create_exam(client, teacher), student)
-    overdue = attempt(client, create_exam(client, teacher, duration_minutes=5), student, submit=False)
+    overdue = attempt(
+        client, create_exam(client, teacher, duration_minutes=5), student, submit=False
+    )
     open_untimed = attempt(client, create_exam(client, teacher), student, submit=False)
     clock.advance(minutes=10)
 

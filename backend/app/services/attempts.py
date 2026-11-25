@@ -60,9 +60,7 @@ def _finalize(submission: Submission, now: datetime) -> None:
 def start_or_resume(db: Session, exam: Exam, student_id: uuid.UUID, now: datetime) -> Submission:
     """Returns the student's open attempt, creating it on first start."""
     submission = db.scalar(
-        select(Submission).where(
-            Submission.exam_id == exam.id, Submission.student_id == student_id
-        )
+        select(Submission).where(Submission.exam_id == exam.id, Submission.student_id == student_id)
     )
     if submission is None:
         submission = Submission(

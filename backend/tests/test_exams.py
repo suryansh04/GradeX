@@ -20,7 +20,10 @@ def test_exam_validation(client, teacher):
         "answers": ["A"],
     }
     assert client.post("/exams", headers=teacher, json={**exam, "answers": []}).status_code == 422
-    assert client.post("/exams", headers=teacher, json={**exam, "duration_minutes": 0}).status_code == 422
+    assert (
+        client.post("/exams", headers=teacher, json={**exam, "duration_minutes": 0}).status_code
+        == 422
+    )
     assert client.post("/exams", headers=teacher, json={**exam, "questions": []}).status_code == 422
     assert client.post("/exams", headers=teacher, json=exam).status_code == 201
 

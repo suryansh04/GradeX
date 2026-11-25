@@ -2,8 +2,12 @@ from tests.helpers import auth_headers, create_exam, grade
 
 
 def take(client, exam, student, answers=("a", "b")):
-    submission_id = client.post(f"/exams/{exam['id']}/attempt", headers=student).json()["submission_id"]
-    client.post(f"/submissions/{submission_id}/submit", headers=student, json={"answers": list(answers)})
+    submission_id = client.post(f"/exams/{exam['id']}/attempt", headers=student).json()[
+        "submission_id"
+    ]
+    client.post(
+        f"/submissions/{submission_id}/submit", headers=student, json={"answers": list(answers)}
+    )
     return submission_id
 
 
@@ -15,7 +19,9 @@ def test_exam_stats_and_report(client, teacher, clock):
     grade(take(client, exam, alice), [5, 4])
     grade(take(client, exam, bob), [2, 3])
     take(client, exam, carol)  # Submitted, not graded yet.
-    client.post(f"/exams/{exam['id']}/attempt", headers=auth_headers(client, "student"))  # In progress.
+    client.post(
+        f"/exams/{exam['id']}/attempt", headers=auth_headers(client, "student")
+    )  # In progress.
 
     [stats] = client.get("/analytics/exams", headers=teacher).json()
     assert stats["submission_count"] == 3

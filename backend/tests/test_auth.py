@@ -12,7 +12,12 @@ def test_signup_and_login(client):
     response = client.post("/auth/login", json={"email": "asha@example.com", "password": PASSWORD})
     assert response.status_code == 200
     body = response.json()
-    assert body["user"] == {**body["user"], "name": "Asha", "email": "asha@example.com", "role": "teacher"}
+    assert body["user"] == {
+        **body["user"],
+        "name": "Asha",
+        "email": "asha@example.com",
+        "role": "teacher",
+    }
 
     me = client.get("/auth/me", headers={"Authorization": f"Bearer {body['access_token']}"})
     assert me.json()["email"] == "asha@example.com"
@@ -32,8 +37,12 @@ def test_signup_validation(client):
 
 def test_login_failures_look_the_same(client):
     signup(client)
-    wrong_password = client.post("/auth/login", json={"email": "asha@example.com", "password": "nope12345"})
-    unknown_email = client.post("/auth/login", json={"email": "who@example.com", "password": "nope12345"})
+    wrong_password = client.post(
+        "/auth/login", json={"email": "asha@example.com", "password": "nope12345"}
+    )
+    unknown_email = client.post(
+        "/auth/login", json={"email": "who@example.com", "password": "nope12345"}
+    )
     assert wrong_password.status_code == unknown_email.status_code == 401
     assert wrong_password.json() == unknown_email.json()
 
