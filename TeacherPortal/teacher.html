@@ -1,260 +1,169 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher · GradeX</title>
     <link rel="icon" type="image/png" href="../images/favicon-1.png" />
-    <title>GradeX</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/portal.css" />
+    <link rel="stylesheet" href="teacher.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js" defer></script>
+    <script src="https://kit.fontawesome.com/a4b6467969.js" crossorigin="anonymous"></script>
   </head>
-  <body>
-    <div class="hamburger">
-      <div class="bar"></div>
-      <div class="bar"></div>
-      <div class="bar"></div>
-    </div>
-    <div class="sidebar">
-      <div class="logo"><span class="grade-logo">Grade</span>X</div>
-      <div class="sidebar-items">
-        <div class="item create">
-          <i
-            class="fa-solid fa-square-plus sidebar-items-icon icon-add selected"
-          ></i>
-          <a href="# " class="selected"> Create</a>
-        </div>
-        <div class="item analytics">
-          <i
-            class="fa-solid fa-chart-simple sidebar-items-icon icon-analytics"
-          ></i>
-          <a href="#">Analytics</a>
-        </div>
-        <div class="divider"></div>
-        <div class="item log-out">
-          <i
-            class="fa-solid fa-arrow-right-from-bracket sidebar-items-icon icon-logout"
-          ></i>
-          <a href="#">Logout</a>
-        </div>
-      </div>
-    </div>
+  <body class="portal">
+    <header class="topbar">
+      <button class="icon-btn" type="button" data-drawer-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <span class="logo"><span>Grade</span>X</span>
+    </header>
 
-    <div class="main-content">
-      <div class="create-content">
-        <div class="header">
-          <span class="header-name">Hey <span class="username"></span>,</span>
-          <div class="header-title-box">
-            <span class="header-title">Teacher</span>
-          </div>
-        </div>
+    <aside class="sidebar" id="sidebar">
+      <span class="logo"><span>Grade</span>X</span>
+      <nav class="sidebar-nav" aria-label="Teacher">
+        <button class="nav-item" type="button" data-tab="create" aria-current="page">
+          <i class="fa-solid fa-square-plus"></i>Create
+        </button>
+        <button class="nav-item" type="button" data-tab="analytics">
+          <i class="fa-solid fa-chart-simple"></i>Analytics
+        </button>
+        <hr class="nav-divider" />
+        <button class="nav-item nav-logout" type="button" data-logout>
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
+        </button>
+      </nav>
+    </aside>
+    <div class="sidebar-backdrop"></div>
 
-        <div class="main-border">
-          <div class="question-marks-container">
-            <div class="question-container">
-              <p class="question-number">Q<span class="q-num">1.</span></p>
-              <input
-                type="text"
-                placeholder="State newton third law?"
-                class="question-text"
-              />
-            </div>
-            <div class="marks-container">
-              <p>Marks</p>
-              <input type="text" class="marks" />
+    <main class="portal-main">
+      <header class="page-header">
+        <h1 class="greeting">Hey <span data-user-name></span>,</h1>
+        <span class="pill pill-role">Teacher</span>
+      </header>
+
+      <!-- Create ------------------------------------------------------------- -->
+      <section class="panel" data-panel="create" aria-label="Create an exam">
+        <form id="exam-form" novalidate>
+          <div class="card details-card">
+            <h2 class="section-title">Exam details</h2>
+            <div class="details-grid">
+              <label class="field">
+                <span class="field-label">Course code</span>
+                <input class="input" id="course-code" maxlength="50" placeholder="PHY101" required />
+              </label>
+              <label class="field">
+                <span class="field-label">Exam name</span>
+                <input class="input" id="exam-name" maxlength="200" placeholder="Newton's Laws Midterm" required />
+              </label>
+              <label class="field">
+                <span class="field-label">Time limit (minutes)</span>
+                <input class="input" id="duration" type="number" min="1" max="600" inputmode="numeric" placeholder="No limit" />
+                <span class="field-hint">Leave empty for an untimed exam.</span>
+              </label>
             </div>
           </div>
 
-          <div class="add-image-container">
-            <label for="imageUpload1" class="add-image-btn">
-              <i class="fa-regular fa-image add-image-logo"></i>Add an Image
-            </label>
-            <input
-              type="file"
-              id="imageUpload1"
-              accept="image/*"
-              style="display: none"
-            />
-          </div>
-        </div>
+          <div class="question-list" id="question-list"></div>
 
-        <div class="footer-container">
-          <div class="total-marks">
-            <p>Total Marks :<span class="total-marks"> 0</span></p>
-          </div>
-          <div class="new-question-btn-container">
-            <button class="new-question-btn">
+          <div class="builder-footer">
+            <p class="total-marks">Total Marks : <strong id="total-marks">0</strong></p>
+            <button class="btn btn-outline" type="button" id="add-question">
               <i class="fa-solid fa-square-plus"></i>New Question
             </button>
-          </div>
-
-          <div class="submit-btn-container">
-            <button class="submit-btn">
+            <button class="btn btn-primary" type="submit">
               <i class="fa-solid fa-square-check"></i>Submit
             </button>
           </div>
-        </div>
-      </div>
-      <div id="analytics-content" style="display: none">
-        <h2>Analytics</h2>
+        </form>
+      </section>
 
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-        <h2>Analytics</h2>
-      </div>
-    </div>
-    <div class="popup" id="popup">
-      <div class="popup-content">
-        <p>Enter Exam Details</p>
-        <input type="text" id="courseCode" placeholder="Course Code" />
-        <input type="text" id="examName" placeholder="Exam Name" />
-        <div class="popup-buttons">
-          <button id="cancelBtn">Cancel</button>
-          <button id="submitBtn">Submit</button>
+      <!-- Analytics ------------------------------------------------------------ -->
+      <section class="panel" data-panel="analytics" aria-label="Analytics" hidden>
+        <div id="analytics-overview">
+          <h2 class="section-title">Your exams</h2>
+          <div class="stats-grid" id="exam-stats" aria-live="polite"></div>
         </div>
-      </div>
-    </div>
+        <div id="analytics-detail" hidden>
+          <button class="btn btn-secondary btn-pill" type="button" id="analytics-back">
+            <i class="fa-solid fa-arrow-left"></i>All exams
+          </button>
+          <div id="exam-report" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
 
-    <div class="success-popup-container" id="success-popup-container">
-      <div class="success-pop-content">
-        <div class="animation-box">
-          <video
-            src="../videos/success.webm"
-            autoplay
-            loop
-            height="70"
-            width="70"
-            muted
-          ></video>
-        </div>
-        <div class="close-btn"><i class="fa-solid fa-xmark"></i></div>
-        <div class="message-container">
-          <div class="message-box"><p>Upload Successful!</p></div>
-          <div class="message-description-box">
-            <p>Your file has been successfully uploaded</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="answer-sheet-container">
-      <div class="answer-sheet-content">
-        <div class="pdf-close-btn-container">
-          <i class="fa-solid fa-xmark" id="closeBtn"></i>
-        </div>
-        <div class="answer-sheet-container-heading">
-          <p>Upload Answer Sheet</p>
-        </div>
-        <div class="answer-sheet-container-description">
-          <p>We will check it against the student response!</p>
-        </div>
-        <div class="upload-container">
-          <label for="pdfUpload1" class="pdf-btn" id="uploadLabel">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-            <span id="uploadText">Upload Answer Sheet</span>
-          </label>
-          <input
-            type="file"
-            id="pdfUpload1"
-            accept=".pdf"
-            style="display: none"
-          />
-        </div>
-        <div class="submit-btn-container answer-sheet-submit-btn-container">
-          <button
-            class="submit-btn answer-sheet-submit-btn"
-            id="AnswerSheetsubmitBtn"
-          >
-            Submit
+    <template id="question-template">
+      <article class="card question-card">
+        <div class="question-card-head">
+          <span class="question-chip"></span>
+          <button class="icon-btn btn-danger" type="button" data-remove-question aria-label="Remove question">
+            <i class="fa-regular fa-trash-can"></i>
           </button>
         </div>
+        <div class="question-card-body">
+          <label class="field">
+            <span class="field-label">Question</span>
+            <textarea class="input question-text" rows="2" placeholder="State Newton's third law." required></textarea>
+          </label>
+          <label class="field marks-field">
+            <span class="field-label">Marks</span>
+            <input class="input question-marks" type="number" min="0" step="0.5" inputmode="decimal" required />
+          </label>
+        </div>
+        <div class="question-image">
+          <label class="btn btn-outline add-image-btn">
+            <i class="fa-regular fa-image"></i>Add an Image
+            <input class="visually-hidden" type="file" accept="image/png,image/jpeg,image/gif,image/webp" />
+          </label>
+          <figure class="image-preview" hidden>
+            <img alt="" />
+            <button class="btn btn-danger" type="button" data-remove-image>
+              <i class="fa-regular fa-trash-can"></i>Remove image
+            </button>
+          </figure>
+        </div>
+      </article>
+    </template>
+
+    <dialog class="dialog dialog-wide" id="sheet-dialog" aria-labelledby="sheet-title">
+      <div class="dialog-body">
+        <button class="icon-btn dialog-close" type="button" data-close aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <h2 class="dialog-title" id="sheet-title">Upload Answer Sheet</h2>
+        <p class="dialog-text">
+          We will check it against the student response! Number each answer in the PDF
+          <strong>A1)</strong>, <strong>A2)</strong> and so on.
+        </p>
+        <label class="dropzone" id="dropzone">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span id="sheet-name">Choose or drop the answer sheet (PDF)</span>
+          <input class="visually-hidden" type="file" id="sheet-input" accept="application/pdf" autofocus />
+        </label>
+        <p class="sheet-check" id="sheet-check" aria-live="polite" hidden></p>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary btn-pill" type="button" data-close>Cancel</button>
+          <button class="btn btn-primary btn-pill" type="button" id="publish-btn" disabled>Publish exam</button>
+        </div>
       </div>
-    </div>
-    <div class="loader"></div>
-    <div class="overlay"></div>
+    </dialog>
 
-    <script
-      src="https://kit.fontawesome.com/a4b6467969.js"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+    <dialog class="dialog" id="success-dialog" aria-labelledby="success-title">
+      <div class="dialog-body success-body">
+        <video src="../videos/success.webm" autoplay loop muted playsinline width="80" height="80"></video>
+        <h2 class="dialog-title" id="success-title">Exam published!</h2>
+        <p class="dialog-text" id="success-text"></p>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary btn-pill" type="button" id="success-analytics">View analytics</button>
+          <button class="btn btn-primary btn-pill" type="button" data-close autofocus>Create another</button>
+        </div>
+      </div>
+    </dialog>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="teacher.js"></script>
   </body>
 </html>

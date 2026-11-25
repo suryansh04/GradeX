@@ -1,0 +1,332 @@
+/* Teacher portal: exam builder and analytics. */
+
+/* --- Exam details ---------------------------------------------------------------- */
+
+.details-card {
+  margin-bottom: 20px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 760px) {
+  .details-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 4px var(--rose-soft);
+}
+
+/* --- Question cards -------------------------------------------------------------- */
+
+.question-list {
+  display: grid;
+  gap: 20px;
+}
+
+.question-card {
+  display: grid;
+  gap: 16px;
+}
+
+.question-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.question-chip {
+  padding: 8px 22px;
+  border-radius: var(--radius-lg);
+  background: var(--blue);
+  color: #fff;
+}
+
+.question-card-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  gap: 16px;
+  align-items: start;
+}
+
+.question-text {
+  min-height: 52px;
+  resize: vertical;
+  font-size: 18px;
+}
+
+.question-image {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.add-image-btn {
+  cursor: pointer;
+}
+
+.add-image-btn:has(input:focus-visible) {
+  outline: 3px solid var(--blue-ring);
+}
+
+.image-preview {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.image-preview img {
+  max-height: 320px;
+  padding: 10px;
+  border: 1px dashed var(--blue);
+  border-radius: var(--radius);
+  object-fit: contain;
+}
+
+@media (max-width: 560px) {
+  .question-card-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .marks-field {
+    max-width: 160px;
+  }
+}
+
+/* --- Builder footer (sticky) ------------------------------------------------------ */
+
+.builder-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 24px;
+  margin-top: 24px;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(6px);
+}
+
+.total-marks {
+  padding: 8px 14px;
+  border: 1px dashed var(--blue);
+  border-radius: var(--radius);
+  color: var(--blue);
+  font-size: 18px;
+}
+
+@media (max-width: 560px) {
+  .builder-footer {
+    position: static;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-inline: calc(var(--gutter) * -1);
+  }
+
+  .total-marks {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .builder-footer .btn {
+    padding-inline: 12px;
+    white-space: nowrap;
+  }
+}
+
+/* --- Answer sheet dialog ---------------------------------------------------------- */
+
+.dropzone {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: clamp(28px, 7vw, 60px) 20px;
+  border: 2px dashed var(--blue);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.dropzone i {
+  font-size: 28px;
+  color: var(--blue);
+}
+
+.dropzone:hover,
+.dropzone.is-dragging {
+  background: var(--blue-soft);
+}
+
+.dropzone:has(input:focus-visible) {
+  outline: 3px solid var(--blue-ring);
+}
+
+.sheet-check {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  text-align: center;
+}
+
+.sheet-check[data-tone="ok"] {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.sheet-check[data-tone="error"] {
+  background: var(--rose-soft);
+  color: var(--rose);
+}
+
+.success-body {
+  justify-items: center;
+}
+
+/* --- Analytics -------------------------------------------------------------------- */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+}
+
+.exam-stat-card {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  border-color: var(--blue);
+  border-radius: var(--radius-lg);
+}
+
+.exam-stat-card .pill-code {
+  justify-self: start;
+}
+
+.exam-stat-card h3 {
+  font-size: 18px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.stat-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-tile {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface-alt);
+}
+
+.stat-tile dt {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.stat-tile dd {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.report-header {
+  display: grid;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.report-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.report-title h2 {
+  font-size: clamp(20px, 3vw, 24px);
+  font-weight: 500;
+}
+
+.report-header .stat-tiles {
+  max-width: 640px;
+}
+
+/* Results table: a real table on wide screens, stacked cards on phones. */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results-table th,
+.results-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.results-table th {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.results-table td:last-child,
+.results-table th:last-child {
+  text-align: right;
+}
+
+.results-table .student-email {
+  color: var(--text-muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .stat-tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .results-table thead {
+    display: none;
+  }
+
+  .results-table tr {
+    display: grid;
+    gap: 4px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .results-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 0;
+    border: none;
+  }
+
+  .results-table td:last-child {
+    text-align: left;
+  }
+
+  .results-table td::before {
+    content: attr(data-label);
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+}
