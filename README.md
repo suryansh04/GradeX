@@ -31,11 +31,11 @@ GradeX turns a written exam into graded, explained feedback. A teacher sets the 
   <tr>
     <td width="50%" valign="top">
       <h3>Build an exam in minutes</h3>
-      Write each question, give it marks and, if it needs one, an image. The total updates as you type. Then upload the model answer sheet as a PDF: GradeX reads it in the browser and matches each answer to its question.
+      Write each question, give it marks and, if it needs one, an image, and set an optional time limit. The total updates as you type. Then upload the model answer sheet as a PDF: GradeX reads it in the browser and checks there is one answer per question before publishing.
     </td>
     <td width="50%" valign="top">
-      <h3>One question at a time</h3>
-      Students pick an exam from their portal and answer it question by question, with any image shown alongside. The model answers never reach the student's browser; they stay on the server until grading.
+      <h3>Timed exams that can't be gamed</h3>
+      A countdown shows the time left and submits automatically at zero. The deadline is kept on the server, answers save as the student types, and each student gets one attempt, so refreshing, closing the tab or going offline neither loses work nor buys extra time.
     </td>
   </tr>
   <tr>
@@ -48,9 +48,19 @@ GradeX turns a written exam into graded, explained feedback. A teacher sets the 
       The Results tab shows each question next to the student's answer, with a card for the grade, the status, the plagiarism check and the feedback. Swipe the card for the correct answer, a common mistake and a learning tip.
     </td>
   </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>A navigator for every question</h3>
+      Jump to any question, move back and forth, and see which ones are still unanswered. A review screen before submitting lists every question, and resuming an exam opens the first one left to answer.
+    </td>
+    <td width="50%" valign="top">
+      <h3>Analytics for teachers</h3>
+      Each exam shows how many students submitted, how many are graded and the average score. Open an exam to see every student's score and when they submitted.
+    </td>
+  </tr>
 </table>
 
-Also: separate teacher and student accounts, a password strength meter at sign-up, a plagiarism check on every answer (copied answers score zero), and grading that carries on in the background while the student moves on.
+Also: separate teacher and student accounts, a password strength meter at sign-up, a plagiarism check on every answer (copied answers score zero), grading that carries on in the background while the student moves on, and a layout that works from phones to desktops.
 
 ## How it works
 
@@ -61,7 +71,7 @@ Also: separate teacher and student accounts, a password strength meter at sign-u
 </picture>
 
 1. **Set.** The teacher writes the questions and marks, and adds images, which upload to the API and are stored on disk. The model answer sheet is read in the browser with pdf.js and split on its numbering (`A1)`, `A2)`, …). The API checks that there is one answer per question, works out the total marks, and saves the exam in Postgres.
-2. **Take.** A student opens an exam and gets the questions without the model answers. When they finish, the answers go to the API in one request. The API checks there is an answer for every question, saves the submission and replies straight away.
+2. **Take.** Starting an exam creates the student's single attempt and, for a timed exam, fixes its deadline on the server. The student gets the questions without the model answers. Answers autosave as a draft; submitting finalises the attempt, and a submission that arrives after the deadline (plus 30 seconds' grace) keeps the last saved draft instead. Attempts left open past their deadline are submitted automatically.
 3. **Grade.** Grading starts in the background. For each answer, nine measures (TF-IDF cosine similarity, keyword and key-phrase overlap, spaCy similarity, BERT embedding similarity, length, sentence count, readability and discourse markers) are weighted into a provisional grade. A plagiarism check compares word sequences with the model answer, and an answer flagged as copied scores zero. Otherwise Claude Opus 5.5 gets the question, both answers, the measures and the provisional grade, and returns the final grade, the status, feedback, the correct answer, a common mistake and a learning tip.
 4. **Review.** Results are saved with the submission, and the student's Results tab shows every graded exam, question by question.
 
@@ -119,22 +129,42 @@ Serve the repository root with Live Server (port 5501, set in `.vscode/settings.
 
 To change the database, edit `backend/app/models.py`, then run `alembic revision --autogenerate -m "describe the change"` and `alembic upgrade head`.
 
+## Tests
+
+**Backend** (needs a disposable Postgres database; every test empties it):
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+psql -U postgres -c "CREATE DATABASE gradex_test;"
+TEST_DATABASE_URL=postgresql+psycopg://postgres:PASSWORD@localhost:5432/gradex_test pytest
+```
+
+**Frontend** (escaping, formatting, the countdown and answer-sheet parsing):
+
+```bash
+npm test
+```
+
 ## Project structure
 
 ```
 backend/
   app/
     main.py             the FastAPI app, CORS, and the /media file server
-    models.py           users, exams, submissions
-    routers/            auth, exams, uploads, submissions
+    models.py           users, exams, submissions (one attempt per student and exam)
+    routers/            auth, exams, submissions, uploads, analytics
+    services/           attempt rules: deadlines, autosave, submitting
     grading/            grader (measures, plagiarism check, Claude) and the grading job
   alembic/              database migrations
-lib/
-  api.js                API client shared by every page: login token, errors, session check
+  tests/                pytest suite
+styles/                 design system: base, portal shell, auth pages
+lib/                    shared modules: API client, safe HTML, portal shell, loader, toasts, countdown
 login/  signup/         sign-in and sign-up pages
-TeacherPortal/          create exams and upload the answer sheet
+TeacherPortal/          exam builder, answer-sheet reader, analytics
 studentPortal/          exam list and results
-examPortal/             answer an exam one question at a time
+examPortal/             timed exam with navigator, autosave and review
+tests/frontend/         Node tests for the shared modules
 ```
 
 ## License
