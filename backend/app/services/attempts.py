@@ -11,7 +11,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, contains_eager
 
 from app.config import get_settings
 from app.models import Exam, Submission
@@ -118,6 +118,7 @@ def finalize_overdue(
     in_progress: Iterable[Submission] = db.scalars(
         select(Submission)
         .join(Submission.exam)
+        .options(contains_eager(Submission.exam))  # deadline() needs the exam: no extra queries
         .where(
             Submission.submitted_at.is_(None),
             Exam.duration_minutes.is_not(None),

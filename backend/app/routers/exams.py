@@ -85,13 +85,12 @@ def start_attempt(
     now = attempts.utc_now()
     try:
         submission = attempts.start_or_resume(db, exam, student.id, now)
-    except attempts.AttemptTimeExpired as error:
+    except attempts.AttemptTimeExpired:
+        # Submit the expired attempt now so it is graded; the error becomes a 409 (see main.py).
         attempts.finalize_overdue(
             db, schedule_grading, Submission.student_id == student.id, Submission.exam_id == exam.id
         )
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from None
-    except attempts.AttemptError as error:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from None
+        raise
 
     return AttemptOut(
         submission_id=submission.id,

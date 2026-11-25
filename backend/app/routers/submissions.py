@@ -23,10 +23,7 @@ def _check_answer_count(submission: Submission, answers: list[str]) -> None:
 def save_answers(body: AnswersIn, submission: OwnSubmission, db: DbSession) -> Response:
     """Saves the in-progress answers, so they survive a refresh or a lost connection."""
     _check_answer_count(submission, body.answers)
-    try:
-        attempts.save_answers(submission, body.answers, attempts.utc_now())
-    except attempts.AttemptError as error:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from None
+    attempts.save_answers(submission, body.answers, attempts.utc_now())
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -39,10 +36,7 @@ def submit(
     schedule_grading: GradingScheduler,
 ) -> SubmitResult:
     _check_answer_count(submission, body.answers)
-    try:
-        answers_accepted = attempts.submit(submission, body.answers, attempts.utc_now())
-    except attempts.AttemptError as error:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from None
+    answers_accepted = attempts.submit(submission, body.answers, attempts.utc_now())
     db.commit()
     schedule_grading(submission.id)
     return SubmitResult(

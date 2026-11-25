@@ -5,11 +5,11 @@ from collections import defaultdict
 from statistics import mean
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.orm import Session, joinedload
 
-from app.dependencies import DbSession, ExamFromPath, GradingScheduler, TeacherUser
+from app.dependencies import DbSession, GradingScheduler, OwnExam, TeacherUser
 from app.models import Exam, Submission
 from app.schemas import ExamReport, ExamStats, ExamSummary, StudentSubmissionRow
 from app.services import attempts
@@ -55,12 +55,7 @@ def list_exam_stats(
 
 
 @router.get("/exams/{exam_id}", response_model=ExamReport)
-def get_exam_report(
-    exam: ExamFromPath, db: DbSession, teacher: TeacherUser, schedule_grading: GradingScheduler
-) -> ExamReport:
-    if exam.created_by != teacher.id:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exam not found.")
-
+def get_exam_report(exam: OwnExam, db: DbSession, schedule_grading: GradingScheduler) -> ExamReport:
     attempts.finalize_overdue(db, schedule_grading, Submission.exam_id == exam.id)
     submissions = _submitted(db, Submission.exam_id == exam.id)
     return ExamReport(

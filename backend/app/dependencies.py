@@ -64,6 +64,16 @@ def get_exam(exam_id: uuid.UUID, db: DbSession) -> Exam:
 ExamFromPath = Annotated[Exam, Depends(get_exam)]
 
 
+def get_own_exam(exam: ExamFromPath, teacher: TeacherUser) -> Exam:
+    # Another teacher's exam is reported as missing, like OwnSubmission below.
+    if exam.created_by != teacher.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exam not found.")
+    return exam
+
+
+OwnExam = Annotated[Exam, Depends(get_own_exam)]
+
+
 def get_own_submission(submission_id: uuid.UUID, db: DbSession, student: StudentUser) -> Submission:
     submission = db.get(Submission, submission_id)
     # Someone else's submission is reported as missing, not forbidden, so ids are not probeable.
