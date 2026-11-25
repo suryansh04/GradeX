@@ -1,55 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exam · GradeX</title>
     <link rel="icon" type="image/png" href="../images/favicon-1.png" />
-    <title>GradeX</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles/base.css" />
     <link rel="stylesheet" href="examportal.css" />
+    <script src="https://kit.fontawesome.com/a4b6467969.js" crossorigin="anonymous"></script>
   </head>
   <body>
-    <div class="main-info-container">
-      <div class="sidebar-info-container">
-        <div class="logo">
-          <p><span class="grade-logo">Grade</span>X</p>
+    <header class="exam-topbar">
+      <a class="logo" href="../studentPortal/studentportal.html" aria-label="GradeX: back to exams"><span>Grade</span>X</a>
+      <div class="exam-title" id="exam-title" hidden>
+        <span class="pill pill-code" id="course-code"></span>
+        <h1 id="exam-name"></h1>
+      </div>
+      <div class="exam-status">
+        <div class="timer" id="timer" role="timer" aria-label="Time left" hidden>
+          <i class="fa-regular fa-clock"></i><span id="timer-value">--:--</span>
         </div>
       </div>
+    </header>
 
-      <div class="info-container">
-        <div class="greeting-name"><p>Hey Tejas,</p></div>
-        <div class="role-title"><p>Student</p></div>
-      </div>
-    </div>
-    <div id="questionContent" class="hidden">
-      <div class="question-box-container">
-        <div class="question-input-box-container">
-          <div class="question-container">
-            <p class="question-number"></p>
-            <p class="question"></p>
-          </div>
-          <div id="questionImage" class="question-image-container hidden">
-            <img src="" alt="Question Image" />
-          </div>
-          <div class="question-input-container">
-            <textarea placeholder="Write your answer here"></textarea>
+    <main class="exam-layout" id="exam" hidden>
+      <nav class="question-nav" aria-label="Questions">
+        <p class="question-nav-title">Questions</p>
+        <ol class="question-nav-list" id="question-nav"></ol>
+        <p class="question-nav-legend">
+          <span><i class="dot dot-answered"></i>Answered</span>
+          <span><i class="dot"></i>Not answered</span>
+        </p>
+      </nav>
+
+      <section class="question-panel" aria-live="polite">
+        <div class="question-head">
+          <span class="question-chip" id="question-number"></span>
+          <span class="badge badge-blue" id="question-marks"></span>
+        </div>
+        <h2 class="question-text" id="question-text"></h2>
+        <figure class="question-image" id="question-image" hidden>
+          <img alt="Image for this question" />
+        </figure>
+        <label class="visually-hidden" for="answer">Your answer</label>
+        <textarea class="input answer-input" id="answer" placeholder="Write your answer here"></textarea>
+        <p class="save-status" id="save-status" aria-live="polite"></p>
+        <div class="question-actions">
+          <button class="btn btn-secondary btn-pill" type="button" id="prev-btn">
+            <i class="fa-solid fa-arrow-left"></i>Previous
+          </button>
+          <div class="question-actions-end">
+            <button class="btn btn-outline btn-pill" type="button" id="review-btn">Review &amp; submit</button>
+            <button class="btn btn-primary btn-pill" type="button" id="next-btn">
+              Next<i class="fa-solid fa-arrow-right"></i>
+            </button>
           </div>
         </div>
-      </div>
+      </section>
+    </main>
 
-      <div class="next-btn"><button>Next question</button></div>
-    </div>
-    <div class="overlay"></div>
-    <div class="loader"></div>
-    <script
-      src="https://kit.fontawesome.com/a4b6467969.js"
-      crossorigin="anonymous"
-    ></script>
+    <section class="exam-message" id="exam-message" hidden>
+      <div class="exam-message-icon" id="message-icon"></div>
+      <h1 id="message-title"></h1>
+      <p id="message-text"></p>
+      <div class="dialog-actions" id="message-actions"></div>
+    </section>
+
+    <dialog class="dialog dialog-wide" id="review-dialog" aria-labelledby="review-title">
+      <div class="dialog-body">
+        <button class="icon-btn dialog-close" type="button" data-close aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <h2 class="dialog-title" id="review-title">Review your answers</h2>
+        <p class="dialog-text" id="review-summary"></p>
+        <ol class="review-list" id="review-list"></ol>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary btn-pill" type="button" data-close>Keep working</button>
+          <button class="btn btn-primary btn-pill" type="button" id="submit-btn">Submit exam</button>
+        </div>
+      </div>
+    </dialog>
+
     <script type="module" src="examportal.js"></script>
   </body>
 </html>
