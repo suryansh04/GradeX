@@ -1,47 +1,61 @@
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
-from app.dependencies import DbSession, StudentUser
-from app.grading.service import grade_submission
-from app.models import Exam, Submission
-from app.schemas import SubmissionCreate, SubmissionCreated, SubmissionResult
+from app.dependencies import DbSession, GradingScheduler, OwnSubmission, StudentUser
+from app.models import Submission
+from app.schemas import AnswersIn, SubmissionResult, SubmitResult
+from app.services import attempts
 
 router = APIRouter(prefix="/submissions", tags=["submissions"])
 
 
-@router.post("", response_model=SubmissionCreated, status_code=status.HTTP_201_CREATED)
-def create_submission(
-    body: SubmissionCreate,
-    db: DbSession,
-    student: StudentUser,
-    background_tasks: BackgroundTasks,
-) -> Submission:
-    exam = db.get(Exam, body.exam_id)
-    if exam is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Exam not found.")
-    if len(body.answers) != len(exam.questions):
+def _check_answer_count(submission: Submission, answers: list[str]) -> None:
+    expected = submission.exam.question_count
+    if len(answers) != expected:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail=f"Expected {len(exam.questions)} answers, got {len(body.answers)}.",
+            detail=f"Expected {expected} answers, got {len(answers)}.",
         )
 
-    submission = Submission(student_id=student.id, exam_id=exam.id, answers=body.answers)
-    db.add(submission)
-    db.commit()
 
-    # Grading takes a while, so it runs after the response has been sent.
-    background_tasks.add_task(grade_submission, submission.id)
-    return submission
+@router.put("/{submission_id}/answers", status_code=status.HTTP_204_NO_CONTENT)
+def save_answers(body: AnswersIn, submission: OwnSubmission, db: DbSession) -> Response:
+    """Saves the in-progress answers, so they survive a refresh or a lost connection."""
+    _check_answer_count(submission, body.answers)
+    attempts.save_answers(submission, body.answers, attempts.utc_now())
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{submission_id}/submit", response_model=SubmitResult)
+def submit(
+    body: AnswersIn,
+    submission: OwnSubmission,
+    db: DbSession,
+    schedule_grading: GradingScheduler,
+) -> SubmitResult:
+    _check_answer_count(submission, body.answers)
+    answers_accepted = attempts.submit(submission, body.answers, attempts.utc_now())
+    db.commit()
+    schedule_grading(submission.id)
+    return SubmitResult(
+        submission_id=submission.id,
+        submitted_at=submission.submitted_at,
+        answers_accepted=answers_accepted,
+    )
 
 
 @router.get("/me", response_model=list[SubmissionResult])
-def list_my_submissions(db: DbSession, student: StudentUser) -> list[SubmissionResult]:
+def list_my_submissions(
+    db: DbSession, student: StudentUser, schedule_grading: GradingScheduler
+) -> list[SubmissionResult]:
+    attempts.finalize_overdue(db, schedule_grading, Submission.student_id == student.id)
     submissions = db.scalars(
         select(Submission)
-        .where(Submission.student_id == student.id)
+        .where(Submission.student_id == student.id, Submission.submitted_at.is_not(None))
         .options(joinedload(Submission.exam))
-        .order_by(Submission.submitted_at)
+        .order_by(Submission.submitted_at.desc())
     )
     return [
         SubmissionResult(
@@ -52,6 +66,8 @@ def list_my_submissions(db: DbSession, student: StudentUser) -> list[SubmissionR
             questions=submission.exam.questions,
             answers=submission.answers,
             graded_responses=submission.graded_responses,
+            score=attempts.score(submission),
+            total_marks=submission.exam.total_marks,
             submitted_at=submission.submitted_at,
         )
         for submission in submissions

@@ -1,86 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <header>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student · GradeX</title>
     <link rel="icon" type="image/png" href="../images/favicon-1.png" />
-    <title>GradeX</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-      rel="stylesheet"
-    />
-
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@splidejs/splide/dist/css/splide.min.css"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide/dist/js/splide.min.js"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide-core.min.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/portal.css" />
     <link rel="stylesheet" href="studentportal.css" />
-  </header>
-  <body>
-    <div class="hamburger">
-      <div class="bar"></div>
-      <div class="bar"></div>
-      <div class="bar"></div>
-    </div>
-    <div class="sidebar">
-      <div class="logo"><span class="grade-logo">Grade</span>X</div>
-      <div class="sidebar-items">
-        <div class="item exam">
-          <i
-            class="fa-solid fa-square-plus sidebar-items-icon icon-add selected"
-          ></i>
-          <a href="# " class="selected">Exams</a>
-        </div>
-        <div class="item result">
-          <i
-            class="fa-solid fa-chart-simple sidebar-items-icon icon-result"
-          ></i>
-          <a href="#">Result</a>
-        </div>
-        <div class="divider"></div>
-        <div class="item log-out">
-          <i
-            class="fa-solid fa-arrow-right-from-bracket sidebar-items-icon icon-logout"
-          ></i>
-          <a href="#">Logout</a>
-        </div>
-      </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js" defer></script>
+    <script src="https://kit.fontawesome.com/a4b6467969.js" crossorigin="anonymous"></script>
+  </head>
+  <body class="portal">
+    <header class="topbar">
+      <button class="icon-btn" type="button" data-drawer-toggle aria-controls="sidebar" aria-expanded="false" aria-label="Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <span class="logo"><span>Grade</span>X</span>
+    </header>
 
-    <div class="main-content">
-      <div class="exam-content">
-        <div class="header">
-          <h1>Hey <span class="username"></span>,</h1>
-          <div class="header-title">
-            <p>Student</p>
-          </div>
+    <aside class="sidebar" id="sidebar">
+      <span class="logo"><span>Grade</span>X</span>
+      <nav class="sidebar-nav" aria-label="Student">
+        <button class="nav-item" type="button" data-tab="exams" aria-current="page">
+          <i class="fa-solid fa-square-plus"></i>Exams
+        </button>
+        <button class="nav-item" type="button" data-tab="results">
+          <i class="fa-solid fa-chart-simple"></i>Results
+        </button>
+        <hr class="nav-divider" />
+        <button class="nav-item nav-logout" type="button" data-logout>
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
+        </button>
+      </nav>
+    </aside>
+    <div class="sidebar-backdrop"></div>
+
+    <main class="portal-main">
+      <header class="page-header">
+        <h1 class="greeting">Hey <span data-user-name></span>,</h1>
+        <span class="pill pill-role">Student</span>
+      </header>
+
+      <section class="panel" data-panel="exams" aria-labelledby="exams-title">
+        <h2 class="section-title" id="exams-title">Exams</h2>
+        <div class="exam-list" id="exam-list" aria-live="polite"></div>
+      </section>
+
+      <section class="panel" data-panel="results" aria-labelledby="results-title" hidden>
+        <div class="results-heading">
+          <h2 class="section-title" id="results-title">Results</h2>
+          <button class="btn btn-outline btn-pill" type="button" id="refresh-results">
+            <i class="fa-solid fa-rotate"></i>Refresh
+          </button>
         </div>
+        <div id="results" aria-live="polite"></div>
+      </section>
+    </main>
 
-        <div class="main-exam-container">
-          <div class="exams-container">
-            <div class="exams"><h3>Exams</h3></div>
-            <div class="exam-list"></div>
-          </div>
-          <div class="loader"></div>
+    <dialog class="dialog" id="start-dialog" aria-labelledby="start-dialog-title">
+      <form class="dialog-body" method="dialog">
+        <h2 class="dialog-title" id="start-dialog-title">Ready to start?</h2>
+        <p class="dialog-text" id="start-dialog-text"></p>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary btn-pill" value="cancel" autofocus>Not yet</button>
+          <button class="btn btn-primary btn-pill" value="start">Start exam</button>
         </div>
-      </div>
-      <div id="result-content" style="display: none">
-        <div class="question-answer-container"></div>
-
-        <div class="result-container"></div>
-      </div>
-    </div>
-
-    <script
-      src="https://kit.fontawesome.com/a4b6467969.js"
-      crossorigin="anonymous"
-    ></script>
-
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      </form>
+    </dialog>
 
     <script type="module" src="studentportal.js"></script>
   </body>

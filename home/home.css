@@ -1,0 +1,800 @@
+/* Landing page. Shared tokens, .logo and .btn come from styles/base.css. */
+
+:root {
+  --home-max: 1252px;
+  --brand-gradient: linear-gradient(90deg, #0f62fe 0%, #3d8bff 100%);
+  --bubble: #4d73f5;
+  --card-border: #e3e5eb;
+  --nav-link: #a3a6ae;
+  --home-muted: #8a8d96;
+  --card-hover: #1d9bf0;
+  --tour-accent: #4d7cf6;
+  --chrome: #262626;
+  --chrome-raised: #3b3b3b;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* --- Header ---------------------------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 26px var(--gutter);
+}
+
+.site-nav .logo {
+  margin-right: auto;
+  font-size: 42px;
+}
+
+.site-nav .logo,
+.site-footer .logo {
+  color: var(--blue);
+}
+
+.site-nav .logo span,
+.site-footer .logo span {
+  color: #000;
+}
+
+.nav-links {
+  display: flex;
+  gap: 50px;
+  margin-right: 30px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: var(--nav-link);
+  font-size: 18px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nav-links a:hover,
+.nav-links a:focus-visible {
+  color: var(--blue);
+}
+
+.nav-actions {
+  display: flex;
+  gap: 28px;
+}
+
+.btn-sm {
+  min-height: 40px;
+  padding: 8px 22px;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.btn-soft {
+  background: #eef2fd;
+  color: var(--text);
+}
+
+.btn-soft:hover {
+  background: #e0e7fc;
+}
+
+.btn-gradient {
+  background: var(--brand-gradient);
+  color: #fff;
+}
+
+.btn-gradient:hover {
+  filter: brightness(1.08);
+}
+
+/* --- Hero ------------------------------------------------------------------ */
+
+.hero {
+  display: grid;
+  justify-items: center;
+  gap: 24px;
+  padding: clamp(56px, 9vw, 132px) var(--gutter) clamp(72px, 10vw, 160px);
+  text-align: center;
+}
+
+.hero-title {
+  font-size: clamp(36px, 5.4vw, 66px);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+/* One gradient across the whole line, deep blue to sky blue, as in the design. */
+.hero-title {
+  background: linear-gradient(90deg, #0a62ff 0%, #2f8cf9 55%, #4aaaf7 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero-subtitle {
+  max-width: 640px;
+  color: var(--home-muted);
+  font-size: clamp(15px, 1.3vw, 18px);
+}
+
+.hero-cta {
+  margin-top: 18px;
+  min-height: 62px;
+  padding: 12px 34px;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.hero-cta:hover {
+  background: var(--blue-dark);
+}
+
+/* --- Product preview ------------------------------------------------------- */
+
+.showcase {
+  max-width: 1222px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.browser {
+  padding: clamp(14px, 4.6vw, 62px) clamp(14px, 4.6vw, 62px) clamp(18px, 4.8vw, 66px);
+  border-radius: 14px;
+  background: #3b78f6;
+}
+
+.browser-bar {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 28px);
+  height: clamp(30px, 3.4vw, 48px);
+  padding: 0 clamp(10px, 1.4vw, 18px);
+  border-radius: 10px 10px 0 0;
+  background: var(--chrome);
+  color: #cfcfcf;
+  font-size: clamp(10px, 1.1vw, 16px);
+}
+
+.browser-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.browser-dots i {
+  width: clamp(8px, 1vw, 14px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e4e4e4;
+}
+
+.browser-dots i + i {
+  background: #9a9a9a;
+}
+
+.browser-nav {
+  display: flex;
+  gap: clamp(2px, 0.6vw, 8px);
+}
+
+.browser-nav button,
+.browser-expand {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.8em;
+  height: 1.8em;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.browser-nav button:hover:not(:disabled),
+.browser-expand:hover {
+  background: var(--chrome-raised);
+  color: #fff;
+}
+
+.browser-nav button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.browser-url {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  height: 64%;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--chrome-raised);
+  color: #e6e6e6;
+  white-space: nowrap;
+}
+
+.browser-url [data-tour-url] {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.browser-view {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 2.25;
+  border-radius: 0 0 10px 10px;
+  background: #fff;
+}
+
+.browser-view img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Guided demo (see demo-tour.js) ------------------------------------- */
+
+.tour-hotspot {
+  position: absolute;
+  border: 0;
+  border-radius: clamp(4px, 0.7vw, 10px);
+  background: color-mix(in srgb, var(--tour-accent) 8%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tour-accent) 90%, transparent), 0 0 0 7px color-mix(in srgb, var(--tour-accent) 22%, transparent);
+  cursor: pointer;
+  transition: left 0.35s, top 0.35s, width 0.35s, height 0.35s;
+}
+
+.tour-hotspot:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 4px;
+}
+
+.tour-beacon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: clamp(10px, 1.1vw, 16px);
+  aspect-ratio: 1;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--tour-accent);
+  transform: translate(45%, -45%);
+}
+
+.tour-beacon::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: var(--tour-accent);
+  animation: beacon 1.6s ease-out infinite;
+}
+
+@keyframes beacon {
+  to {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+
+.tour-tip {
+  --tx: -50%;
+  --ty: 14px;
+  position: absolute;
+  left: var(--anchor-x);
+  top: var(--anchor-y);
+  z-index: 1;
+  width: max-content;
+  max-width: 46%;
+  padding: 0.75em 1.2em;
+  border: 0;
+  border-radius: 14px;
+  background: var(--tour-accent);
+  box-shadow: 0 10px 24px rgba(59, 120, 246, 0.4);
+  color: #fff;
+  font: 500 clamp(11px, 1.3vw, 18px) / 1.35 var(--font);
+  text-align: left;
+  cursor: pointer;
+  transform: translate(var(--tx), var(--ty));
+  animation: tip-float 2.4s ease-in-out infinite;
+}
+
+.tour-tip[data-side="above"] {
+  --ty: calc(-100% - 14px);
+}
+
+.tour-tip[data-align="start"] {
+  --tx: 0%;
+}
+
+.tour-tip[data-align="end"] {
+  --tx: -100%;
+}
+
+.tour-tip.is-entering {
+  animation: tip-in 0.35s ease-out, tip-float 2.4s ease-in-out 0.35s infinite;
+}
+
+@keyframes tip-in {
+  from {
+    opacity: 0;
+    scale: 0.9;
+  }
+}
+
+@keyframes tip-float {
+  50% {
+    translate: 0 -4px;
+  }
+}
+
+.tour-progress {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: color-mix(in srgb, var(--tour-accent) 15%, transparent);
+}
+
+.tour-progress::after {
+  content: "";
+  display: block;
+  width: var(--progress, 0%);
+  height: 100%;
+  background: var(--tour-accent);
+  transition: width 0.35s;
+}
+
+.tour-end {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: clamp(6px, 1vw, 14px);
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(6px);
+  text-align: center;
+  animation: tip-in 0.35s ease-out;
+}
+
+.tour-end[hidden] {
+  display: none;
+}
+
+.tour-end-title {
+  font-size: clamp(18px, 2.6vw, 36px);
+  font-weight: 500;
+}
+
+.tour-end-text {
+  max-width: 520px;
+  color: var(--text-muted);
+  font-size: clamp(12px, 1.2vw, 16px);
+  font-weight: 300;
+}
+
+.tour-end-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* On wide screens the caption only feeds screen readers; phones show it under the screen. */
+.tour-caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Features -------------------------------------------------------------- */
+
+.features {
+  max-width: var(--home-max);
+  margin: 0 auto;
+  padding: clamp(72px, 11vw, 168px) var(--gutter) clamp(64px, 8vw, 120px);
+}
+
+.section-head {
+  margin-bottom: clamp(48px, 7vw, 100px);
+  text-align: center;
+}
+
+.section-head h2 {
+  color: #000;
+  font-size: clamp(26px, 3.6vw, 50px);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.section-head p {
+  margin-top: clamp(16px, 2.4vw, 34px);
+  color: var(--home-muted);
+  font-size: clamp(15px, 1.5vw, 22px);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px 31px;
+  list-style: none;
+}
+
+.feature-card {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  padding: 20px 20px 36px;
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  background: var(--surface);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+  border-color: var(--card-hover);
+  box-shadow: 0 0 0 1px var(--card-hover);
+}
+
+.feature-card h3 {
+  margin: 30px 8px 0;
+  color: #1a66e8;
+  font-size: clamp(19px, 1.6vw, 22px);
+  font-weight: 400;
+}
+
+.feature-card p {
+  max-width: 290px;
+  margin: 12px 8px 0;
+  color: var(--home-muted);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Illustrations: chat-style bubbles placed with --w (width) and --at (left offset). */
+.feature-art {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 12px;
+  min-height: 212px;
+}
+
+.feature-art-board {
+  gap: 16px;
+}
+
+.bubble,
+.bubble-row {
+  width: var(--w, 100%);
+  margin-left: var(--at, 0%);
+}
+
+/* Short bubbles keep their design width but grow to fit one line of text when there is room. */
+.bubble-chip,
+.bubble-rank,
+.bubble-pill {
+  width: fit-content;
+  min-width: min(var(--w, 0%), 100% - var(--at, 0%));
+  max-width: calc(100% - var(--at, 0%));
+}
+
+.bubble {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 18px;
+  background: var(--bubble);
+  color: #fff;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+.bubble small {
+  font-size: 10px;
+}
+
+.bubble-block {
+  min-height: 88px;
+}
+
+.bubble-quote {
+  min-height: 0;
+  padding: 12px 18px 14px;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.bubble-quote small {
+  font-size: 12px;
+}
+
+.bubble-chip,
+.bubble-rank {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  min-height: 40px;
+  padding: 6px 18px 6px 10px;
+}
+
+.bubble-chip > span:not(.q) {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.bubble-tall {
+  min-height: 46px;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.bubble-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bubble-row .bubble-chip {
+  min-width: 0;
+  margin: 0;
+}
+
+.bubble-pill {
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.bubble-marks {
+  flex: none;
+  width: auto;
+  margin: 0;
+  align-items: center;
+  padding: 3px 9px 5px;
+  border-radius: 8px;
+  line-height: 1.1;
+}
+
+.bubble-marks small {
+  font-size: 8px;
+}
+
+.q {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--orange);
+  color: #fff;
+  font-size: 8px;
+}
+
+.bubble-feedback {
+  padding: 12px 22px 16px;
+  background: var(--yellow);
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+
+.bubble-feedback strong {
+  margin-bottom: 4px;
+  font-size: 13.5px;
+  font-weight: 400;
+}
+
+.bubble-alert {
+  min-height: 48px;
+  padding: 6px 28px;
+  background: var(--orange);
+  font-size: 13px;
+}
+
+.bubble-rank {
+  min-height: 48px;
+  padding: 7px 28px 7px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.bubble-rank img {
+  flex: none;
+  border-radius: 50%;
+}
+
+.bubble-rank b {
+  margin-left: auto;
+  font-weight: 400;
+}
+
+/* --- Footer ---------------------------------------------------------------- */
+
+.site-footer {
+  border-top: 1px solid var(--card-border);
+  background: #fafbff;
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px 48px;
+  max-width: var(--home-max);
+  margin: 0 auto;
+  padding: 48px var(--gutter) 24px;
+}
+
+.footer-inner .logo {
+  font-size: 32px;
+}
+
+.footer-inner p {
+  max-width: 420px;
+  margin-top: 10px;
+  color: var(--home-muted);
+  font-size: 15px;
+  font-weight: 300;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  align-items: center;
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--blue);
+}
+
+.footer-copy {
+  padding: 0 var(--gutter) 32px;
+  color: var(--text-faint);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* --- Responsive ------------------------------------------------------------ */
+
+@media (max-width: 1100px) {
+  .feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav-links {
+    gap: 28px;
+    margin-right: 8px;
+  }
+
+  .nav-actions {
+    gap: 14px;
+  }
+}
+
+@media (max-width: 760px) {
+  .site-nav {
+    padding-block: 16px;
+  }
+
+  .site-nav .logo {
+    font-size: 32px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .feature-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feature-card {
+    min-height: 0;
+  }
+
+  .feature-art {
+    min-height: 0;
+  }
+
+  .tour-tip {
+    display: none;
+  }
+
+  .tour-caption {
+    position: static;
+    width: auto;
+    height: auto;
+    margin-top: 12px;
+    clip-path: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .tour-end-text {
+    display: none;
+  }
+
+  .tour-end .btn {
+    min-height: 36px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .feature-card p {
+    max-width: none;
+  }
+
+  .hero-cta {
+    min-height: 54px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .site-nav {
+    gap: 12px;
+  }
+
+  .site-nav .logo {
+    font-size: 28px;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .btn-sm {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+}

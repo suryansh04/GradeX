@@ -8,6 +8,7 @@ from sqlalchemy import select
 
 from app.database import SessionLocal
 from app.models import Submission
+from app.services.attempts import finalize_overdue
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,11 @@ def grade_submission(submission_id: uuid.UUID) -> None:
         # Read what is needed and release the connection before the slow grading step.
         with SessionLocal() as db:
             submission = db.get(Submission, submission_id)
-            if submission is None or submission.graded_responses is not None:
+            if (
+                submission is None
+                or submission.submitted_at is None
+                or submission.graded_responses is not None
+            ):
                 return
             exam = submission.exam
             questions = exam.questions
@@ -57,12 +62,18 @@ def grade_submission(submission_id: uuid.UUID) -> None:
 
 
 def grade_pending_submissions() -> None:
-    """Grades every submission that has no results yet (e.g. after a server restart)."""
+    """Grades every submitted attempt that has no results yet (e.g. after a server
+    restart), first submitting timed attempts whose deadline has passed."""
     with SessionLocal() as db:
+        # Not scheduled one by one: the query below picks them up.
+        finalize_overdue(db, lambda _submission_id: None)
         pending_ids = list(
             db.scalars(
                 select(Submission.id)
-                .where(Submission.graded_responses.is_(None))
+                .where(
+                    Submission.submitted_at.is_not(None),
+                    Submission.graded_responses.is_(None),
+                )
                 .order_by(Submission.submitted_at)
             )
         )

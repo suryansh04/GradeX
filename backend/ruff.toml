@@ -1,0 +1,11 @@
+line-length = 100
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "W", "B", "UP", "I"]
+# Role(str, Enum) keeps str(role) == "Role.TEACHER"; StrEnum would change that.
+ignore = [
+  "UP042",
+  # The formatter owns line length; long literals it leaves alone (fmt: skip, prompts) are fine.
+  "E501",
+]

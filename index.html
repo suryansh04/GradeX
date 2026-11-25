@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GradeX · Grade Smarter, Teach Better</title>
+    <meta name="description" content="AI-powered grading with instant results, personalised feedback and a teacher dashboard." />
+    <link rel="icon" type="image/png" href="images/favicon-1.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="home/home.css" />
+  </head>
+  <body id="top">
+    <header class="site-header">
+      <nav class="site-nav" aria-label="Main">
+        <a class="logo" href="#top">Grade<span>X</span></a>
+        <ul class="nav-links">
+          <li><a href="#top" aria-current="page">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+        <div class="nav-actions">
+          <a class="btn btn-sm btn-soft" href="login/login.html">Sign in</a>
+          <a class="btn btn-sm btn-gradient" href="signup/signup.html">Try Demo</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1 class="hero-title"><span>Grade Smarter,</span> <span>Teach Better</span></h1>
+        <p class="hero-subtitle">Grading reimagined: Fast feedback, custom insights, better learning.</p>
+        <a class="btn btn-primary btn-pill hero-cta" href="signup/signup.html">Get started <span aria-hidden="true">›</span></a>
+      </section>
+
+      <section class="showcase" aria-label="Product preview">
+        <div class="browser" data-tour>
+          <div class="browser-bar">
+            <span class="browser-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="browser-nav">
+              <button type="button" data-tour-prev aria-label="Previous step">←</button>
+              <button type="button" data-tour-next aria-label="Next step">→</button>
+              <button type="button" data-tour-restart aria-label="Restart the demo">↻</button>
+            </span>
+            <span class="browser-url">
+              <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path fill="currentColor" d="M4 7V5a4 4 0 1 1 8 0v2h1v8H3V7h1Zm2 0h4V5a2 2 0 1 0-4 0v2Z" /></svg>
+              <span data-tour-url>gradex.com</span>
+            </span>
+            <a class="browser-expand" href="signup/signup.html" aria-label="Open GradeX">⤢</a>
+          </div>
+          <div class="browser-view">
+            <img data-tour-screen src="home/demo/signup.webp" width="2160" height="960" alt="GradeX product screen for the current demo step" />
+            <button class="tour-hotspot" type="button" data-tour-hotspot><span class="tour-beacon" aria-hidden="true"></span></button>
+            <button class="tour-tip" type="button" data-tour-tip tabindex="-1" aria-hidden="true"></button>
+            <div class="tour-end" data-tour-end hidden>
+              <p class="tour-end-title">Ready to grade smarter?</p>
+              <p class="tour-end-text">Create exams, let students attempt them online and get AI-graded results in minutes.</p>
+              <div class="tour-end-actions">
+                <a class="btn btn-primary btn-pill" href="signup/signup.html">Get started</a>
+                <button class="btn btn-soft btn-pill" type="button" data-tour-restart>Replay demo</button>
+              </div>
+            </div>
+            <span class="tour-progress" data-tour-progress aria-hidden="true"></span>
+          </div>
+          <p class="tour-caption" data-tour-caption aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="features" id="features">
+        <header class="section-head">
+          <h2>AI-Powered Tools for Educational Excellence</h2>
+          <p>Explore features designed to save time and improve outcomes</p>
+        </header>
+
+        <!-- Bubble geometry: --w is the width and --at the left offset, both as % of the card's art area. -->
+        <ul class="feature-grid">
+          <li class="feature-card">
+            <div class="feature-art" aria-hidden="true">
+              <div class="bubble bubble-chip" style="--w: 47%; --at: 3%"><span class="q">AI</span><span><small>Partially correct</small>2/3</span></div>
+              <div class="bubble bubble-block">Newton third law states that every forces has an equal and opposite reaction</div>
+            </div>
+            <h3>Instant Grading</h3>
+            <p>AI-powered assessment that provides immediate results for assignments and tests</p>
+          </li>
+
+          <li class="feature-card">
+            <div class="feature-art" aria-hidden="true">
+              <div class="bubble bubble-pill" style="--w: 55%; --at: 21%">PY2001 PHYSICS MIDTERM</div>
+              <div class="bubble-row" style="--at: 5%">
+                <div class="bubble bubble-chip" style="--w: 65%"><span class="q">Q1</span>State newton third law ?</div>
+                <div class="bubble bubble-marks"><small>Marks</small>3</div>
+              </div>
+              <div class="bubble bubble-block bubble-quote" style="--w: 83%; --at: 17%"><small>Student Response:</small>Newton law states that every action has an equal and eopposite reaction</div>
+            </div>
+            <h3>Teacher Dashboard</h3>
+            <p>Centralized control panel for managing classes, assignments, and student data</p>
+          </li>
+
+          <li class="feature-card">
+            <div class="feature-art" aria-hidden="true">
+              <div class="bubble bubble-chip" style="--w: 65%; --at: 9%"><span class="q">Q1</span>State newton third law ?</div>
+              <div class="bubble bubble-chip bubble-tall" style="--w: 75%; --at: 25%"><span class="q">Q2</span>Solve for x in the quadratic equation: x² − 5x + 6 = 0</div>
+              <div class="bubble bubble-chip" style="--w: 82%; --at: 12%"><span class="q">Q3</span>What is the function of red blood cells?</div>
+            </div>
+            <h3>Multi-Subject Support</h3>
+            <p>Versatile grading across various subjects and assignment types</p>
+          </li>
+
+          <li class="feature-card">
+            <div class="feature-art" aria-hidden="true">
+              <div class="bubble bubble-block">Newton third law states that every forces has an equal and opposite reaction</div>
+              <div class="bubble bubble-feedback" style="--w: 65%; --at: 35%"><strong>Feedback</strong>The answer is correct however you have not given example of real-life scenarioes</div>
+            </div>
+            <h3>Personalized Feedback</h3>
+            <p>Tailored comments and suggestions to help each student improve</p>
+          </li>
+
+          <li class="feature-card">
+            <div class="feature-art" aria-hidden="true">
+              <div class="bubble bubble-alert" style="--w: 69%; --at: 4%"><small>Not plagiarized</small>Similarity level:0.2</div>
+              <div class="bubble bubble-block" style="--at: 4%; --w: 96%">Newton third law states that every forces has an equal and opposite reaction</div>
+            </div>
+            <h3>Plagiarism Detection</h3>
+            <p>Advanced algorithms to ensure academic integrity and original work.</p>
+          </li>
+
+          <li class="feature-card">
+            <div class="feature-art feature-art-board" aria-hidden="true">
+              <div class="bubble bubble-rank" style="--w: 72%; --at: 0%"><img src="home/avatars/tejas.svg" alt="" width="34" height="34" />Tejas Mehra<b>90/100</b></div>
+              <div class="bubble bubble-rank" style="--w: 72%; --at: 21%"><img src="home/avatars/sushrut.svg" alt="" width="34" height="34" />Sushrut Kane<b>80/100</b></div>
+              <div class="bubble bubble-rank" style="--w: 72%; --at: 2%"><img src="home/avatars/suryansh.svg" alt="" width="34" height="34" />Suryansh Singh<b>70/100</b></div>
+            </div>
+            <h3>Interactive Leaderboards</h3>
+            <p>Motivate students with friendly competition and recognition for academic achievements.</p>
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="site-footer" id="about">
+      <div class="footer-inner">
+        <div>
+          <a class="logo" href="#top">Grade<span>X</span></a>
+          <p>AI-assisted grading for teachers: create exams, collect answers and get marks with feedback in minutes.</p>
+        </div>
+        <nav class="footer-links" aria-label="Footer">
+          <a href="#features">Features</a>
+          <a href="login/login.html">Sign in</a>
+          <a href="signup/signup.html">Create account</a>
+        </nav>
+      </div>
+      <p class="footer-copy">© <span id="year"></span> GradeX</p>
+    </footer>
+
+    <script type="module" src="home/home.js"></script>
+  </body>
+</html>
