@@ -1,377 +1,200 @@
-var hamburger = document.querySelector(".hamburger");
-var sidebar = document.querySelector(".sidebar");
-var examBtnSideBar = document.querySelector(".exam");
-var examBtnIcon = document.querySelector(".exam i");
-var examBtnLink = document.querySelector(".exam a");
-var resultBtnSideBar = document.querySelector(".result");
-var resultBtnIcon = document.querySelector(".result i");
-var resultBtnLink = document.querySelector(".result a");
-var examContent = document.querySelector(".exam-content");
-var resultContent = document.getElementById("result-content");
-var mainContent = document.querySelector(".main-content");
-var loader = document.querySelector(".loader");
+import { apiRequest } from "../lib/api.js";
+import { $, html, setHtml } from "../lib/dom.js";
+import { showToast, withLoader } from "../lib/feedback.js";
+import { formatDateTime, formatDuration, formatMarks, pluralize } from "../lib/format.js";
+import { initPortal } from "../lib/shell.js";
 
-// Hamburger Menu
-let splideInstances = [];
-hamburger.addEventListener("click", () => {
-  sidebar.classList.toggle("active");
-});
+const examList = $("#exam-list");
+const resultsList = $("#results");
+const startDialog = $("#start-dialog");
 
-/** Spinner Function */
-function showSpinner() {
-  loader.style.display = "block";
-}
+const examUrl = (examId) => `../examPortal/examportal.html?examId=${encodeURIComponent(examId)}`;
 
-function hideSpinner() {
-  loader.style.display = "none";
-}
-
-/* Sidebar(left side ) toggling */
-
-examBtnSideBar.addEventListener("click", () => {
-  if (
-    examBtnIcon.classList.contains("selected") === false &&
-    examBtnLink.classList.contains("selected") === false
-  ) {
-    examBtnIcon.classList.add("selected");
-    examBtnLink.classList.add("selected");
-
-    resultBtnIcon.classList.remove("selected");
-    resultBtnLink.classList.remove("selected");
-
-    examContent.style.display = "block";
-    resultContent.style.display = "none";
-    mainContent.style.paddingRight = "30px";
-
-    clearSplideElements();
-  }
-});
-
-resultBtnSideBar.addEventListener("click", () => {
-  if (
-    resultBtnIcon.classList.contains("selected") === false &&
-    resultBtnLink.classList.contains("selected") === false
-  ) {
-    resultBtnIcon.classList.add("selected");
-    resultBtnLink.classList.add("selected");
-
-    examBtnIcon.classList.remove("selected");
-    examBtnLink.classList.remove("selected");
-
-    examContent.style.display = "none";
-    resultContent.style.display = "flex";
-    resultContent.style.justifyContent = "space-between";
-    mainContent.style.paddingRight = "0px";
-    FetchQuestionAnswer();
-    FetchResultData();
-  }
-});
-
-function clearSplideElements() {
-  console.log("Clearing Splide elements");
-  // Destroy all Splide instances
-  splideInstances.forEach((instance) => instance.destroy());
-  splideInstances = [];
-
-  // Clear the result container
-  const resultContainer = document.querySelector(".result-container");
-  if (resultContainer) {
-    resultContainer.innerHTML = "";
-  }
-
-  // Clear the question-answer container
-  const questionAnswerContainer = document.querySelector(
-    ".question-answer-container"
-  );
-  if (questionAnswerContainer) {
-    questionAnswerContainer.innerHTML = "";
-  }
-}
-
-// -------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// GradeX API
-
-import { apiRequest, requireSession } from "../lib/api.js";
-
-requireSession();
-
-/** The student's submissions that have been graded; results show only these. */
-async function fetchGradedSubmissions() {
-  const submissions = await apiRequest("/submissions/me");
-  return submissions.filter((submission) => submission.graded_responses);
-}
-
-// Function to get URL parameters
-function getUrlParameter(name) {
-  name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
-  var results = regex.exec(location.search);
-  return results === null
-    ? ""
-    : decodeURIComponent(results[1].replace(/\+/g, " "));
-}
-
-// Function to update the user name in the header
-function updateUserName(name) {
-  const userNameElement = document.querySelector(".username");
-  if (userNameElement) {
-    userNameElement.textContent = name || "Student";
-  }
-}
-
-// Immediately update the user name when the page loads
-document.addEventListener("DOMContentLoaded", () => {
-  const name = getUrlParameter("name");
-  updateUserName(name);
-});
-
-// ----------------------------------------------------------------------------------------------------------------------------------------
-/// Fetching exams from the API
-
-// Function to fetch and display exams
-
-async function fetchAndDisplayExams() {
-  showSpinner();
+/** Runs a loader-wrapped request, reporting failures as a toast. */
+async function load(task) {
   try {
-    const exams = await apiRequest("/exams");
-    const examList = document.querySelector(".exam-list");
-
-    exams.forEach((exam) => {
-      examList.appendChild(createExamElement(exam, exam.id));
-    });
+    await withLoader(task);
   } catch (error) {
-    console.error("Error fetching exams: ", error);
-  } finally {
-    hideSpinner();
+    showToast(error.message, "error");
   }
 }
 
-// Function to create exam element
+// --- Exams ---------------------------------------------------------------------
 
-function createExamElement(examData, examId) {
-  const examInfoContainer = document.createElement("div");
-  examInfoContainer.className = "exam-info-container";
-  examInfoContainer.innerHTML = `
-    <div class="exam-main-info-container">
-      <div class="course-code-container">
-        <p class="course-code">${examData.course_code}</p>
+function examAction(exam) {
+  const status = exam.attempt?.status;
+  if (status === "submitted") {
+    return html`
+      <span class="badge badge-green"><i class="fa-solid fa-check"></i>Submitted</span>
+      <button class="btn btn-outline btn-pill" type="button" data-view-result="${exam.attempt.submission_id}">
+        View result
+      </button>`;
+  }
+  if (status === "in_progress") {
+    return html`
+      <span class="badge badge-amber">In progress</span>
+      <a class="btn btn-primary btn-pill" href="${examUrl(exam.id)}">Resume</a>`;
+  }
+  return html`<button class="btn btn-primary btn-pill" type="button" data-start="${exam.id}">Start</button>`;
+}
+
+function examRow(exam) {
+  return html`
+    <article class="exam-row">
+      <span class="pill pill-code">${exam.course_code}</span>
+      <div>
+        <h3 class="exam-row-title">${exam.exam_name}</h3>
+        <p class="exam-row-meta">
+          <span><i class="fa-regular fa-clock"></i> ${formatDuration(exam.duration_minutes)}</span>
+          <span>${pluralize(exam.question_count, "question")}</span>
+          <span>${pluralize(Number(formatMarks(exam.total_marks)), "mark")}</span>
+        </p>
       </div>
-      <div class="exam-name-container">
-        <p>${examData.exam_name}</p>
-      </div>
-    </div>
-    <div class="exam-start-btn-container">
-      <button class="start-btn" data-exam-id="${examId}">Start</button>
-    </div>
-  `;
-
-  const startBtn = examInfoContainer.querySelector(".start-btn");
-  startBtn.addEventListener("click", () => startExam(examId));
-
-  return examInfoContainer;
+      <div class="exam-row-action">${examAction(exam)}</div>
+    </article>`;
 }
 
-// Function to handle exam start
+let exams = [];
 
-function startExam(examId) {
-  console.log(`Starting exam with ID: ${examId}`);
-  // Implement your exam start logic here
-
-  // For example, you might want to navigate to a new page or show the exam questions
-
-  const studentName = document.querySelector(".username").textContent;
-  window.location.href = `../examPortal/examportal.html?examId=${examId}&name=${encodeURIComponent(
-    studentName
-  )}`;
+async function loadExams() {
+  await load(async () => {
+    exams = await apiRequest("/exams");
+    setHtml(
+      examList,
+      exams.length
+        ? exams.map(examRow)
+        : html`<div class="empty-state"><i class="fa-regular fa-calendar"></i>No exams yet. Check back once your teacher publishes one.</div>`
+    );
+  });
 }
 
-// Event listener for when the DOM is loaded
+function confirmStart(exam) {
+  $("#start-dialog-text").textContent = exam.duration_minutes
+    ? `${exam.exam_name} has a time limit of ${formatDuration(exam.duration_minutes)}. The timer starts now and keeps running even if you close the page. You can submit only once.`
+    : `${exam.exam_name} has no time limit. Your answers save as you type, and you can submit only once.`;
+  startDialog.returnValue = "";
+  startDialog.showModal();
+  startDialog.addEventListener(
+    "close",
+    () => startDialog.returnValue === "start" && (window.location.href = examUrl(exam.id)),
+    { once: true }
+  );
+}
 
-document.addEventListener("DOMContentLoaded", async () => {
-  const name = getUrlParameter("name");
-  updateUserName(name);
-  await fetchAndDisplayExams();
+examList.addEventListener("click", (event) => {
+  const start = event.target.closest("[data-start]");
+  if (start) confirmStart(exams.find((exam) => exam.id === start.dataset.start));
+
+  const view = event.target.closest("[data-view-result]");
+  if (view) portal.showTab("results", view.dataset.viewResult);
 });
 
-///-----------------------------------------------------------------------------------------------------------------------------------------
-///----------------------------------------------------------------------------------------------------------------------------------------------
-// Result Container Handling and Fetching Data
+// --- Results -------------------------------------------------------------------
 
-//Fetching Question And Student Response
-let containerHeightArray = [];
-async function FetchQuestionAnswer() {
-  showSpinner();
+const STATUS_BADGES = {
+  correct: "badge-green",
+  "partially correct": "badge-amber",
+  "partially incorrect": "badge-amber",
+  incorrect: "badge-rose",
+  plagiarized: "badge-rose",
+};
 
-  try {
-    const submissions = await fetchGradedSubmissions();
-    const QuestionAnswerList = document.querySelector(
-      ".question-answer-container"
-    );
+const statusBadge = (status) => STATUS_BADGES[status.toLowerCase()] ?? "badge-gray";
 
-    submissions.forEach((answerData) => {
-      answerData.questions.forEach((_, index) => {
-        const QuestionAnswerElement = createQuestionAnswerElement(
-          answerData,
-          index
-        );
-        QuestionAnswerList.appendChild(QuestionAnswerElement);
-      });
-    });
-
-    // Setting Height
-
-    var questionInfoContainer = document.querySelectorAll(
-      ".question-answer-info-container"
-    );
-
-    for (let i = 0; i < questionInfoContainer.length; i++) {
-      let height = questionInfoContainer[i].clientHeight;
-      console.log(`The height is ${height}`);
-      containerHeightArray.push(height);
-    }
-  } catch (error) {
-    console.error("Error fetching exams: ", error);
-  } finally {
-    hideSpinner();
-  }
-}
-
-function createQuestionAnswerElement(answerData, index) {
-  const QuestionAnswerInfoContainer = document.createElement("div");
-  QuestionAnswerInfoContainer.className = "question-answer-info-container";
-  QuestionAnswerInfoContainer.innerHTML = `
-      <div class="question-container">
-                  <div class="question-number">Q<span class = question-index>${
-                    index + 1
-                  }</span></div>
-                  <div class="question">
-                    <p>
-                      ${answerData.questions[index].question_text}
-                    </p>
-                  </div>
-                </div>
-                <div class="answer-container">
-                  <div class="answer">
-                    <textarea readonly>
-                    ${answerData.answers[index]}
-                    </textarea>
-                  </div>
-                </div>
-        `;
-
-  return QuestionAnswerInfoContainer;
-}
-//---------------------------------------------------------------------------------------------------------------------------------------
-//Fetching Claude's Response
-
-async function FetchResultData() {
-  clearSplideElements(); // Clear existing elements before fetching new data
-  showSpinner();
-  try {
-    const submissions = await fetchGradedSubmissions();
-    const resultList = document.querySelector(".result-container");
-
-    submissions.forEach((resultData) => {
-      resultData.graded_responses.forEach((_, index) => {
-        const resultElement = createResultElement(resultData, index);
-        resultList.appendChild(resultElement);
-      });
-    });
-
-    // Initialize all Splide instances after creating all elements
-    document.querySelectorAll(".splide").forEach((elem, index) => {
-      new Splide(elem, {
-        type: "slide",
-        perPage: 1,
-        perMove: 1,
-        arrows: false,
-      }).mount();
-    });
-
-    var splideContainers = document.querySelectorAll(".splide");
-
-    for (let i = 0; i < splideContainers.length; i++) {
-      console.log(splideContainers[i].style.height);
-      splideContainers[i].style.height = `${containerHeightArray[i] + 40}px`;
-      console.log(`${containerHeightArray[i] + 40}px`);
-    }
-  } catch (error) {
-    console.error("Error fetching results:", error);
-  } finally {
-    hideSpinner();
-  }
-}
-
-function createResultElement(resultData, index) {
-  const resultAnswerInfoContainer = document.createElement("div");
-  resultAnswerInfoContainer.className = "splide";
-  resultAnswerInfoContainer.id = `splide-${index}`;
-  const response = resultData.graded_responses[index];
-  resultAnswerInfoContainer.innerHTML = `
-    <div class="splide__track">
-      <ul class="splide__list">
-        <li class="splide__slide">
-          <div class="result-container-course-code">
-            <p>${resultData.course_code} ${resultData.exam_name}</p>
-        
-          </div>
-              <p class = "p-status">${
-                response.plagiarism_status
-              }</p>
-          <div class="marks">
-            <div class="result-container-question-number">
-              <p>Q<span class="index">${index + 1}</span></p>
+function resultCard(question, response, index) {
+  return html`
+    <div class="splide result-card" aria-label="Result for question ${index + 1}">
+      <div class="splide__track">
+        <ul class="splide__list">
+          <li class="splide__slide">
+            <span class="badge">${response.plagiarism_status}</span>
+            <div class="result-marks">
+              <span class="result-qno">Q${index + 1}</span>
+              <div>
+                <p class="result-status">${response.answer_status}</p>
+                <p>${formatMarks(response.grade)}/${formatMarks(question.marks)}</p>
+              </div>
             </div>
-            <div class="question-status-marks">
-              <p>${response.answer_status}</p>
-              <p>${response.grade}/${
-    resultData.questions[index].marks
-  }</p>
+            <div><h4>Feedback</h4><p>${response.feedback}</p></div>
+          </li>
+          <li class="splide__slide"><h4>Correct Answer</h4><p>${response.sample_answer}</p></li>
+          <li class="splide__slide"><h4>Common Mistake</h4><p>${response.common_mistake || "None noted."}</p></li>
+          <li class="splide__slide">
+            <div class="learning-tip">
+              <h4><i class="fa-solid fa-lightbulb"></i>Learning Tip</h4>
+              <p>${response.learning_tip || "Keep practising!"}</p>
             </div>
-          </div>
+          </li>
+        </ul>
+      </div>
+    </div>`;
+}
 
-           <div class="feedback-container">
-            <p>Feedback</p>
-            <p class="feedback-text">${
-              response.feedback
-            }</p>
-          </div>  
-        </li>
-        <li class="splide__slide">
-         <div class="correct-answer-container">
-<p>Correct Answer</p>
-<p class="correct-answer-text">
-${response.sample_answer}
-</p>
-</div>
-        </li>
-      
+const pendingCard = html`
+  <div class="result-pending">
+    <i class="fa-solid fa-hourglass-half"></i>
+    <p>Being graded. Refresh in a minute.</p>
+  </div>`;
 
-   <li class="splide__slide">
-<div class="common-mistake-container">
-<p>Common Mistake</p>
-<p class="common-mistake-text">
-${response.common_mistake}
-</p>
-</div>
+function resultBlock(submission) {
+  const graded = submission.graded_responses;
+  const score =
+    submission.score === null
+      ? html`<span class="badge badge-blue">Grading in progress</span>`
+      : html`<p class="score">${formatMarks(submission.score)} <small>/ ${formatMarks(submission.total_marks)}</small></p>`;
 
-        </li>
-  <li class="splide__slide">
-<div class="learning-tip-container">
-<p><i class="fa-solid fa-lightbulb"></i>Learning Tip</p>
-<p class="learning-tip-text">
-${response.learning_tip}
-</p>
-</div>
+  return html`
+    <section class="result-block" id="result-${submission.id}">
+      <header class="result-header">
+        <div class="result-exam">
+          <span class="pill pill-code">${submission.course_code}</span>
+          <h3>${submission.exam_name}</h3>
+          <p class="result-date">Submitted ${formatDateTime(submission.submitted_at)}</p>
+        </div>
+        ${score}
+      </header>
+      ${submission.questions.map(
+        (question, index) => html`
+          <div class="result-row">
+            <div>
+              <p class="result-question"><strong>Q${index + 1}</strong> ${question.question_text}</p>
+              <div class="answer-box">${submission.answers[index]}</div>
+            </div>
+            ${graded ? resultCard(question, graded[index], index) : pendingCard}
+          </div>`
+      )}
+    </section>`;
+}
 
-        </li>
-      </ul>
-    </div>
-  `;
+let carousels = [];
 
-  console.log(
-    `Created Splide element with id: ${resultAnswerInfoContainer.id}`
+function mountCarousels() {
+  carousels.forEach((carousel) => carousel.destroy());
+  carousels = [...resultsList.querySelectorAll(".splide")].map((element) =>
+    new window.Splide(element, { arrows: false, autoHeight: true }).mount()
   );
-  return resultAnswerInfoContainer;
 }
+
+async function loadResults(focusSubmissionId) {
+  await load(async () => {
+    const submissions = await apiRequest("/submissions/me");
+    setHtml(
+      resultsList,
+      submissions.length
+        ? submissions.map(resultBlock)
+        : html`<div class="empty-state"><i class="fa-solid fa-chart-simple"></i>Your results will appear here after you submit an exam.</div>`
+    );
+    mountCarousels();
+  });
+  if (focusSubmissionId) document.getElementById(`result-${focusSubmissionId}`)?.scrollIntoView();
+}
+
+$("#refresh-results").addEventListener("click", () => loadResults());
+
+// --- Start ---------------------------------------------------------------------
+
+const portal = await initPortal({
+  role: "student",
+  onShow: { exams: loadExams, results: loadResults },
+});
+portal?.showTab(new URLSearchParams(location.search).get("tab") === "results" ? "results" : "exams");
