@@ -1,0 +1,167 @@
+/* Shell shared by the teacher and student portals: sidebar, top bar, page header. */
+
+.portal {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+/* --- Sidebar ----------------------------------------------------------------- */
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100dvh;
+  padding: 24px 20px;
+  background: var(--surface-alt);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: none;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 19px;
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.nav-item i {
+  width: 24px;
+  font-size: 22px;
+  text-align: center;
+}
+
+.nav-item:hover {
+  color: var(--text);
+}
+
+.nav-item[aria-current="page"] {
+  color: #000;
+  background: rgba(72, 118, 255, 0.08);
+}
+
+.nav-divider {
+  width: 100%;
+  margin: 12px 0;
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.nav-logout:hover {
+  color: var(--rose);
+  background: var(--rose-soft);
+}
+
+/* --- Top bar and drawer (small screens) -------------------------------------- */
+
+.topbar {
+  display: none;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .portal {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px var(--gutter) 8px 8px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(6px);
+  }
+
+  .topbar .logo {
+    font-size: 30px;
+  }
+
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 200;
+    width: min(280px, 85vw);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0.25s;
+  }
+
+  .sidebar.is-open {
+    transform: none;
+    visibility: visible;
+    box-shadow: var(--shadow);
+  }
+
+  .sidebar-backdrop.is-open {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    display: block;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .sidebar .logo {
+    font-size: 36px;
+  }
+}
+
+/* --- Main area ---------------------------------------------------------------- */
+
+.portal-main {
+  min-width: 0;
+  padding: 20px var(--gutter) 48px;
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 32px;
+}
+
+.greeting {
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+.section-title {
+  font-size: clamp(20px, 3vw, 24px);
+  font-weight: 400;
+  margin-bottom: 16px;
+}
+
+.panel {
+  max-width: 1100px;
+  margin: 0 auto;
+}

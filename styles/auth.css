@@ -1,0 +1,151 @@
+/* Login and sign-up pages: pattern panel beside a centred form. */
+
+.auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.auth-art {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: url("../images/Rectangle 20 (1).svg") left top / cover no-repeat;
+}
+
+.auth-panel {
+  display: grid;
+  align-items: center;
+  padding: 32px var(--gutter);
+}
+
+.auth-form {
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.auth-title {
+  margin-top: 12px;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.auth-subtitle {
+  margin-top: 6px;
+  color: var(--text-muted);
+}
+
+.auth-switch {
+  text-align: center;
+}
+
+.auth-switch a {
+  color: var(--orange);
+}
+
+/* Password input with a show/hide button inside it. */
+.password-wrap {
+  position: relative;
+}
+
+.password-wrap .input {
+  padding-right: 52px;
+}
+
+.password-wrap .icon-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+}
+
+.strength-meter {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.strength-meter span {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-alt);
+  transition: background-color 0.2s;
+}
+
+.strength-meter[data-level="1"] span:nth-child(-n + 1) {
+  background: #ff4136;
+}
+
+.strength-meter[data-level="2"] span:nth-child(-n + 2) {
+  background: #ff851b;
+}
+
+.strength-meter[data-level="3"] span:nth-child(-n + 3) {
+  background: #ffdc00;
+}
+
+.strength-meter[data-level="4"] span {
+  background: #2ecc40;
+}
+
+/* Role choice: two selectable cards. */
+.role-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  border: none;
+}
+
+.role-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 17px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.role-option input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--blue);
+}
+
+.role-option:has(input:checked) {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.role-option:has(input:focus-visible) {
+  outline: 3px solid var(--blue-ring);
+}
+
+@media (max-width: 899px) {
+  .auth {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  .auth-art {
+    position: static;
+    height: 120px;
+  }
+
+  .auth-panel {
+    align-items: start;
+  }
+}
+
+@media (max-width: 340px) {
+  .role-options {
+    grid-template-columns: 1fr;
+  }
+}
